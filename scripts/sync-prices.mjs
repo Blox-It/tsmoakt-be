@@ -1,6 +1,6 @@
 import {writeFile} from 'node:fs/promises';
 const url=process.env.GOOGLE_SHEET_CSV_URL;
-if(!url) throw new Error('Stel de repositoryvariabele GOOGLE_SHEET_CSV_URL in.');
+if(!url){console.log('Geen GOOGLE_SHEET_CSV_URL ingesteld; synchronisatie overgeslagen.');process.exit(0)}
 const response=await fetch(url);if(!response.ok) throw new Error(`Google Sheet ophalen mislukt: ${response.status}`);
 const csv=await response.text();
 function rows(text){let out=[],row=[],cell='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i],n=text[i+1];if(c==='"'&&quoted&&n==='"'){cell+='"';i++}else if(c==='"'){quoted=!quoted}else if(c===','&&!quoted){row.push(cell);cell=''}else if((c==='\n'||c==='\r')&&!quoted){if(c==='\r'&&n==='\n')i++;row.push(cell);if(row.some(Boolean))out.push(row);row=[];cell=''}else cell+=c}row.push(cell);if(row.some(Boolean))out.push(row);return out}
