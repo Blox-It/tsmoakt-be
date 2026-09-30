@@ -1,0 +1,21 @@
+// Voeg deze matches toe binnen service cloud.firestore > match /databases/{database}/documents.
+// De bestaande functie isWhitelisted() uit smartpeak-projects wordt hergebruikt.
+
+match /tsmoakt_requests/{requestId} {
+  allow read, create, update, delete: if isWhitelisted();
+  match /messages/{messageId} { allow read, write: if isWhitelisted(); }
+  match /activities/{activityId} { allow read, write: if isWhitelisted(); }
+  match /documents/{documentId} { allow read, write: if isWhitelisted(); }
+}
+
+match /tsmoakt_catalog/{documentId} {
+  allow read, write: if isWhitelisted();
+}
+
+match /tsmoakt_suppliers/{supplierId} {
+  allow read, write: if isWhitelisted();
+}
+
+match /tsmoakt_users/{userId} {
+  allow read, write: if isWhitelisted();
+}
