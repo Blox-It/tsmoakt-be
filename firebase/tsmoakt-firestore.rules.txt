@@ -1,4 +1,7 @@
-// Plaats dit binnen service cloud.firestore > match /databases/{database}/documents.
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
 
 function isTsmoaktAdmin() {
   return request.auth != null
@@ -22,4 +25,6 @@ match /tsmoakt_suppliers/{supplierId} {
 
 match /tsmoakt_users/{userId} {
   allow read, write: if isTsmoaktAdmin();
+}
+  }
 }
