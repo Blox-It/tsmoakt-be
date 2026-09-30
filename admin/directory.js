@@ -44,7 +44,7 @@ function renderAll() {renderStaff();renderSuppliers();renderProducts();dispatchD
 function fieldsFor(type,item={}) {
   if (type==='staff') return `<label class="full">Naam<input name="name" value="${esc(item.name)}" required></label><label>E-mail<input name="email" type="email" value="${esc(item.email)}"></label><label>Telefoon<input name="phone" value="${esc(item.phone)}"></label>`;
   if (type==='supplier') return `<label class="full">Naam leverancier<input name="name" value="${esc(item.name)}" required></label><label>Contactpersoon<input name="contactName" value="${esc(item.contactName)}"></label><label>E-mail<input name="email" type="email" value="${esc(item.email)}"></label><label>Telefoon<input name="phone" value="${esc(item.phone)}"></label><label class="full">Notities<textarea name="notes" rows="3">${esc(item.notes)}</textarea></label>`;
-  return `<label class="full">Productnaam<input name="name" value="${esc(item.name)}" required></label><label>Categorie<input name="category" value="${esc(item.category)}" placeholder="Voeding, materiaal…"></label><label>Eenheid<input name="unit" value="${esc(item.unit||'stuk')}" placeholder="kg, liter, stuk…"></label><label>Leverancier<select name="supplierId"><option value="">Niet ingesteld</option>${suppliers.map(supplier=>`<option value="${supplier.id}" ${item.supplierId===supplier.id?'selected':''}>${esc(supplier.name)}</option>`).join('')}</select></label><label>Aankoopprijs (optioneel)<input name="purchasePrice" type="number" min="0" step="0.01" value="${Number.isFinite(item.purchasePrice)?item.purchasePrice:''}"></label><label>Verkoopprijs (optioneel)<input name="salePrice" type="number" min="0" step="0.01" value="${Number.isFinite(item.salePrice)?item.salePrice:''}"></label>`;
+  return `<label class="full">Productnaam<input name="name" value="${esc(item.name)}" required></label><label>Categorie<select name="category"><option value="Voedsel" ${item.category==='Voedsel'?'selected':''}>Voedsel</option><option value="Materiaal" ${item.category==='Materiaal'?'selected':''}>Materiaal</option><option value="Personeel" ${item.category==='Personeel'?'selected':''}>Personeel</option></select></label><label>Eenheid<input name="unit" value="${esc(item.unit||'stuk')}" placeholder="kg, liter, stuk…"></label><label>Leverancier<select name="supplierId"><option value="">Niet ingesteld</option>${suppliers.map(supplier=>`<option value="${supplier.id}" ${item.supplierId===supplier.id?'selected':''}>${esc(supplier.name)}</option>`).join('')}</select></label><label>Aankoopprijs (optioneel)<input name="purchasePrice" type="number" min="0" step="0.01" value="${Number.isFinite(item.purchasePrice)?item.purchasePrice:''}"></label><label>Verkoopprijs (optioneel)<input name="salePrice" type="number" min="0" step="0.01" value="${Number.isFinite(item.salePrice)?item.salePrice:''}"></label>`;
 }
 
 function openEditor(type,id=null) {
@@ -52,7 +52,7 @@ function openEditor(type,id=null) {
   const item=id?list.find(entry=>entry.id===id):{};
   editing={type,id,item};
   const title=type==='staff'?'medewerker':type==='supplier'?'leverancier':'product';
-  dialog.innerHTML=`<form method="dialog" id="entity-form"><header><h2>${id?'Bewerk':'Nieuw'} ${title}</h2><button value="cancel">×</button></header><div class="form-grid">${fieldsFor(type,item)}</div><footer>${id?'<button id="deactivate-entity" type="button">Deactiveren</button>':''}<span></span><button value="cancel">Annuleren</button><button class="primary" value="save">Opslaan</button></footer></form>`;
+  dialog.innerHTML=`<form method="dialog" id="entity-form"><header><h2>${id?'Bewerk':'Nieuw'} ${title}</h2><button value="cancel" formnovalidate>×</button></header><div class="form-grid">${fieldsFor(type,item)}<p id="entity-error" class="form-error full" hidden></p></div><footer>${id?'<button id="deactivate-entity" type="button">Deactiveren</button>':''}<span></span><button value="cancel" formnovalidate>Annuleren</button><button class="primary" value="save">Opslaan</button></footer></form>`;
   dialog.querySelector('form').onsubmit=saveEntity;
   dialog.querySelector('#deactivate-entity')?.addEventListener('click',deactivateEntity);
   dialog.showModal();
@@ -61,12 +61,19 @@ function openEditor(type,id=null) {
 async function saveEntity(event) {
   if(event.submitter?.value!=='save')return;
   event.preventDefault();
-  const data=Object.fromEntries(new FormData(event.currentTarget));
-  if(editing.type==='product'){data.purchasePrice=optionalNumber(data.purchasePrice);data.salePrice=optionalNumber(data.salePrice)}
-  data.active=true;data.updatedAt=serverTimestamp();
-  const collectionName=editing.type==='staff'?'tsmoakt_staff':editing.type==='supplier'?'tsmoakt_suppliers':'tsmoakt_products';
-  if(editing.id)await updateDoc(doc(db,collectionName,editing.id),data);else await addDoc(collection(db,collectionName),{...data,createdAt:serverTimestamp()});
-  dialog.close();
+  const form=event.currentTarget,error=form.querySelector('#entity-error'),saveButton=event.submitter;
+  error.hidden=true;saveButton.disabled=true;saveButton.textContent='Opslaan…';
+  try {
+    const data=Object.fromEntries(new FormData(form));
+    if(editing.type==='product'){data.purchasePrice=optionalNumber(data.purchasePrice);data.salePrice=optionalNumber(data.salePrice)}
+    data.active=true;data.updatedAt=serverTimestamp();
+    const collectionName=editing.type==='staff'?'tsmoakt_staff':editing.type==='supplier'?'tsmoakt_suppliers':'tsmoakt_products';
+    if(editing.id)await updateDoc(doc(db,collectionName,editing.id),data);else await addDoc(collection(db,collectionName),{...data,createdAt:serverTimestamp()});
+    dialog.close();
+  } catch(saveError) {
+    error.textContent=saveError.code==='permission-denied'?'Geen toegang. Publiceer eerst de nieuwste Firestore-regels.':`Opslaan mislukt: ${saveError.message}`;
+    error.hidden=false;saveButton.disabled=false;saveButton.textContent='Opslaan';
+  }
 }
 
 async function deactivateEntity() {

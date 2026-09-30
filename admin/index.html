@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="admin-v2.css">
   <link rel="stylesheet" href="search-archive.css">
   <link rel="stylesheet" href="customers.css">
+  <link rel="stylesheet" href="mobile-fixes.css">
   <style>[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -57,7 +58,7 @@
 
   <dialog id="request-dialog">
     <form method="dialog" id="request-form">
-      <header><h2>Nieuwe aanvraag</h2><button value="cancel" aria-label="Sluiten">×</button></header>
+      <header><h2>Nieuwe aanvraag</h2><button value="cancel" formnovalidate aria-label="Sluiten">×</button></header>
       <div class="form-grid">
         <label>Naam klant<input name="customerName" required></label>
         <label>E-mail<input name="email" type="email" required></label>
@@ -72,7 +73,7 @@
         <label class="full">Medewerkers<select name="assignedTo" multiple size="3"></select></label>
         <label class="full">Opmerkingen<textarea name="notes" rows="4"></textarea></label>
       </div>
-      <footer><button value="cancel">Annuleren</button><button class="primary" value="default">Dossier aanmaken</button></footer>
+      <footer><button value="cancel" formnovalidate>Annuleren</button><button class="primary" value="default">Dossier aanmaken</button></footer>
     </form>
   </dialog>
 
