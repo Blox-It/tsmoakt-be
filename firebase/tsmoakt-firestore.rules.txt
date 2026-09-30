@@ -23,6 +23,14 @@ match /tsmoakt_suppliers/{supplierId} {
   allow read, write: if isTsmoaktAdmin();
 }
 
+match /tsmoakt_staff/{staffId} {
+  allow read, write: if isTsmoaktAdmin();
+}
+
+match /tsmoakt_products/{productId} {
+  allow read, write: if isTsmoaktAdmin();
+}
+
 match /tsmoakt_users/{userId} {
   allow read, write: if isTsmoaktAdmin();
 }
