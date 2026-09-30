@@ -16,7 +16,26 @@ export const statuses = [
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[character]));
 const money = amount => new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'}).format(amount);
-let requests = [], staff = [], products = [], catalog = [], filter = '', unsubscribeRequests;
+let requests = [], staff = [], products = [], catalog = [], filter = '', archiveFilter = '', archivePage = 1, unsubscribeRequests;
+
+function timestampMillis(value) {
+  if (!value) return 0;
+  if (typeof value.toDate === 'function') return value.toDate().getTime();
+  if (value.seconds) return value.seconds * 1000;
+  const parsed = new Date(value).getTime();
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function isArchived(request) {
+  if (request.status !== 'uitgevoerd') return false;
+  const completed = timestampMillis(request.completedAt || request.updatedAt);
+  return completed > 0 && completed < Date.now() - 7 * 24 * 60 * 60 * 1000;
+}
+
+function searchable(request) {
+  const expanded = {...request,assignedNames:staffNames(request.assignedTo),formulaNames:(request.formulaSelections||[]).map(line=>allFormulas().find(item=>item.id===line.formulaId)?.title),productNames:(request.productSelections||[]).map(line=>products.find(item=>item.id===line.productId)?.name)};
+  return JSON.stringify(expanded).toLowerCase();
+}
 
 function isFilled(value) {
   return Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== '' && value !== 0;
@@ -70,7 +89,7 @@ function card(request) {
 }
 
 export function renderBoard() {
-  const visible = requests.filter(request => JSON.stringify(request).toLowerCase().includes(filter));
+  const visible = requests.filter(request => !isArchived(request) && searchable(request).includes(filter));
   $('#stats').innerHTML = [
     ['Totaal',visible.length],['Nieuw',visible.filter(item=>item.status==='todo').length],
     ['Actief',visible.filter(item=>['in_behandeling','wacht_op_klant','aanvaard','in_uitvoering'].includes(item.status)).length],
@@ -89,10 +108,31 @@ export function renderBoard() {
     column.ondragleave = () => column.classList.remove('dragover');
     column.ondrop = async event => {
       event.preventDefault();column.classList.remove('dragover');
-      await updateDoc(doc(db,'tsmoakt_requests',event.dataTransfer.getData('text/plain')),{status:column.dataset.status,updatedAt:serverTimestamp()});
+      const nextStatus=column.dataset.status;
+      await updateDoc(doc(db,'tsmoakt_requests',event.dataTransfer.getData('text/plain')),{status:nextStatus,completedAt:nextStatus==='uitgevoerd'?serverTimestamp():null,updatedAt:serverTimestamp()});
     };
   });
   window.dispatchEvent(new CustomEvent('tsmoakt:requests',{detail:requests}));
+}
+
+function renderArchive() {
+  const pageSize=15;
+  const archived=requests.filter(isArchived).filter(request=>searchable(request).includes(archiveFilter));
+  const pages=Math.max(1,Math.ceil(archived.length/pageSize));archivePage=Math.min(archivePage,pages);
+  const pageItems=archived.slice((archivePage-1)*pageSize,archivePage*pageSize);
+  $('#archive-view').innerHTML=`<div class="view-head"><div><h1>Archief</h1><p>Uitgevoerde dossiers verdwijnen na zeven dagen automatisch van het Kanbanbord.</p></div><label class="search">Zoeken<input id="archive-search" type="search" value="${esc(archiveFilter)}" placeholder="Zoek in oude dossiers"></label></div><div class="archive-list">${pageItems.map(request=>`<button class="archive-row" data-id="${request.id}"><span><strong>${esc(request.customerName||'Zonder naam')}</strong><small>${esc(request.email||'')} · ${esc(request.location||'')}</small></span><time>${esc(request.eventDate||'Geen datum')} ${esc(request.eventTime||'')}</time><span>${money(request.calculatedTotal||0)}</span></button>`).join('')||'<p class="empty-note">Geen gearchiveerde dossiers gevonden.</p>'}</div><div class="pagination"><button id="archive-prev" ${archivePage<=1?'disabled':''}>Vorige</button><span>Pagina ${archivePage} van ${pages}</span><button id="archive-next" ${archivePage>=pages?'disabled':''}>Volgende</button></div>`;
+  $('#archive-search').oninput=event=>{archiveFilter=event.target.value.toLowerCase();archivePage=1;renderArchive()};
+  $('#archive-prev').onclick=()=>{archivePage--;renderArchive()};$('#archive-next').onclick=()=>{archivePage++;renderArchive()};
+  document.querySelectorAll('.archive-row').forEach(row=>row.onclick=()=>openRequest(row.dataset.id));
+}
+
+function renderGlobalSearch() {
+  const query=$('#global-search').value.trim().toLowerCase(),results=$('#global-results');
+  if(query.length<2){results.hidden=true;results.innerHTML='';return}
+  const matches=requests.filter(request=>searchable(request).includes(query)).slice(0,20);
+  results.innerHTML=matches.map(request=>`<button data-id="${request.id}"><span><strong>${esc(request.customerName||'Zonder naam')}</strong><small>${esc(request.email||'')} · ${esc(request.location||'')}</small></span><time>${esc(request.eventDate||'Geen datum')}</time></button>`).join('')||'<p>Geen dossiers gevonden.</p>';
+  results.hidden=false;
+  results.querySelectorAll('button').forEach(button=>button.onclick=()=>{openRequest(button.dataset.id);results.hidden=true});
 }
 
 function optionList(values,selected = []) {
@@ -159,6 +199,7 @@ export function openRequest(id) {
     data.assignedTo = [...form.elements.assignedTo.selectedOptions].map(option=>option.value);
     data.formulaSelections = formulaSelections;data.productSelections = productSelections;
     data.calculatedTotal = calculateTotal(formulaSelections,productSelections).total;
+    data.completedAt = data.status==='uitgevoerd' ? (request.completedAt || serverTimestamp()) : null;
     data.updatedAt = serverTimestamp();
     await updateDoc(doc(db,'tsmoakt_requests',id),data);
     const button = form.querySelector('[type=submit]');button.textContent='Opgeslagen';setTimeout(()=>button.textContent='Opslaan',1200);
@@ -190,6 +231,8 @@ $('#logout-btn').onclick = () => signOut(auth);
 $('#drawer-close').onclick = $('#backdrop').onclick = closeDrawer;
 $('#new-btn').onclick = () => $('#request-dialog').showModal();
 $('#search').oninput = event => {filter=event.target.value.toLowerCase();renderBoard()};
+$('#global-search').oninput = renderGlobalSearch;
+document.addEventListener('click',event=>{if(!event.target.closest('.global-search'))$('#global-results').hidden=true});
 
 $('#request-form').onsubmit = async event => {
   if (event.submitter?.value==='cancel') return;
@@ -206,11 +249,12 @@ document.querySelectorAll('.nav').forEach(button => button.onclick = () => {
   document.querySelectorAll('.app-view').forEach(view=>view.hidden=true);
   const target=document.querySelector(`#${button.dataset.view}-view`);if(target)target.hidden=false;
   $('#stats').hidden=button.dataset.view!=='board';
+  if(button.dataset.view==='archive')renderArchive();
 });
 
 onAuthStateChanged(auth,user => {
   const ok=user&&allowed.includes((user.email||'').toLowerCase());$('#login').hidden=ok;$('#app').hidden=!ok;
   if (!ok) {if(unsubscribeRequests)unsubscribeRequests();return}
   $('#logout-btn').textContent=(user.displayName||user.email).split(/\s|@/).map(part=>part[0]).join('').slice(0,2).toUpperCase();
-  unsubscribeRequests=onSnapshot(query(collection(db,'tsmoakt_requests'),orderBy('updatedAt','desc')),snapshot=>{requests=snapshot.docs.map(item=>({id:item.id,...item.data()}));renderBoard()},error=>{$('#board').innerHTML=`<p>Firestore-toegang ontbreekt nog: ${esc(error.message)}</p>`});
+  unsubscribeRequests=onSnapshot(query(collection(db,'tsmoakt_requests'),orderBy('updatedAt','desc')),snapshot=>{requests=snapshot.docs.map(item=>({id:item.id,...item.data()}));renderBoard();renderArchive();renderGlobalSearch()},error=>{$('#board').innerHTML=`<p>Firestore-toegang ontbreekt nog: ${esc(error.message)}</p>`});
 });

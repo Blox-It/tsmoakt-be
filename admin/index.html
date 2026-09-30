@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="catalog.css">
   <link rel="stylesheet" href="catalog-edit.css">
   <link rel="stylesheet" href="admin-v2.css">
+  <link rel="stylesheet" href="search-archive.css">
   <style>[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -26,6 +27,7 @@
       <div class="brand"><img src="../assets/logo.webp" alt=""><div><strong>T'Smoakt</strong><span>Catering CRM</span></div></div>
       <nav>
         <button class="nav active" data-view="board">Aanvragen</button>
+        <button class="nav" data-view="archive">Archief</button>
         <button class="nav" data-view="calendar">Kalender</button>
         <button class="nav" data-view="catalog">Formules</button>
         <button class="nav" data-view="staff">Medewerkers</button>
@@ -36,12 +38,14 @@
     </header>
 
     <main>
+      <section class="global-search"><label for="global-search">Zoek in alle dossiers</label><input id="global-search" type="search" placeholder="Naam, e-mail, locatie, formule, product, notitie…"><div id="global-results" hidden></div></section>
       <section class="stats" id="stats"></section>
       <section id="board-view" class="app-view">
         <div class="view-head"><div><h1>Aanvragen</h1><p>Sleep dossiers tussen de kolommen of open ze voor alle details.</p></div><label class="search">Zoeken<input id="search" type="search" placeholder="Naam, locatie of formule"></label></div>
         <div id="board" class="board"></div>
       </section>
       <section id="calendar-view" class="app-view" hidden></section>
+      <section id="archive-view" class="app-view" hidden></section>
       <section id="staff-view" class="app-view" hidden></section>
       <section id="products-view" class="app-view" hidden></section>
       <section id="suppliers-view" class="app-view" hidden></section>
