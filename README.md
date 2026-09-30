@@ -2,19 +2,20 @@
 
 Snelle, statische website voor GitHub Pages. Er is geen buildstap nodig.
 
-## Prijzen beheren
+## Inhoud en prijzen beheren
 
-De website leest het aanbod uit `data/prices.json`. Dit bestand kan rechtstreeks worden aangepast, of automatisch uit een Google Sheet worden bijgewerkt.
+De website leest categorieën en formules uit losse JSON-bestanden. Regels kunnen toegevoegd, verwijderd, gesorteerd of met `active=false` verborgen worden.
 
-Maak een Google Sheet met exact deze kolommen op de eerste rij:
+Maak één Google Spreadsheet met tabbladen voor `Categorieën`, `Burgers`, `BBQ`, `Paella`, `Steak` en `Tapas`. Formuletabbladen gebruiken deze kolommen:
 
-`id,title,price,description,image,active`
+`order,group,title,description,price,unit,active`
 
-- `id`: unieke korte naam, bijvoorbeeld `burgers`
-- `image`: `burgers`, `bbq`, `paella`, `steak` of `tapas`
-- `active`: `true` of `false`
+- Elke rij is één formule of prijsregel.
+- `order` bepaalt de volgorde.
+- `group` is optioneel, bijvoorbeeld `Kinderen` of `Optie`.
+- `active` is `true` of `false`.
 
-Publiceer het werkblad via **Bestand → Delen → Publiceren op internet** als CSV. Voeg daarna in GitHub onder **Settings → Secrets and variables → Actions → Variables** de variabele `GOOGLE_SHEET_CSV_URL` toe met de gepubliceerde CSV-link.
+Publiceer de spreadsheet en voeg in GitHub de repositoryvariabele `GOOGLE_SHEET_ID` toe. Vul daarna in `data/sheets.json` per tabblad de echte `gid` in. De workflow zet ieder tabblad om naar zijn eigen JSON-bestand.
 
 De workflow synchroniseert elke ochtend automatisch. Via **Actions → Prijzen uit Google Sheet bijwerken → Run workflow** kan dit ook meteen.
 
