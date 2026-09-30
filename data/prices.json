@@ -1,0 +1,10 @@
+{
+  "updated": "2026-09-30",
+  "items": [
+    {"id":"burgers","title":"Verse burgers","price":"Prijs op aanvraag","description":"Ambachtelijke burgers met verse toppings, ter plaatse bereid.","image":"burgers","active":true},
+    {"id":"bbq","title":"BBQ","price":"vanaf € 10 p.p.","description":"Van een klassieke worst tot een uitgebreide formule met vlees, vis en verse bijgerechten.","image":"bbq","active":true},
+    {"id":"paella","title":"Spaanse paella","price":"Prijs op aanvraag","description":"Saffraanrijst, kip en zeevruchten: royaal, kleurrijk en vol smaak.","image":"paella","active":true},
+    {"id":"steak","title":"Steak friet","price":"Prijs op aanvraag","description":"Een geliefde klassieker, vers bereid voor jouw gezelschap.","image":"steak","active":true},
+    {"id":"tapas","title":"Tapas & planken","price":"Prijs op aanvraag","description":"Warme en koude tapas, kaasplanken, koude schotels en mini-broodjes.","image":"tapas","active":true}
+  ]
+}
