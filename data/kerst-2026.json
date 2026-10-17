@@ -1,0 +1,83 @@
+{
+  "title": "Kerstbestelling 2026",
+  "orderDeadline": null,
+  "pickupSlots": [
+    { "id": "do-24", "label": "Donderdag 24 december", "time": "13u – 17u", "date": "2026-12-24", "from": "13:00", "to": "17:00" },
+    { "id": "vr-25", "label": "Vrijdag 25 december", "time": "10u – 12u", "date": "2026-12-25", "from": "10:00", "to": "12:00" },
+    { "id": "za-26", "label": "Zaterdag 26 december", "time": "10u – 12u", "date": "2026-12-26", "from": "10:00", "to": "12:00" }
+  ],
+  "sections": [
+    {
+      "title": "Hapjes",
+      "sub": "Kleine lekkernijen voor jouw feest of gezelschap.",
+      "items": [
+        { "id": "hapje-scampi", "name": "Scampi's", "desc": "3 stuks", "price": 4, "unit": "pp" },
+        { "id": "hapje-scampi-pikant", "name": "Scampi's pikant", "desc": "3 stuks", "price": 4, "unit": "pp" },
+        { "id": "hapje-mosselen", "name": "Halve mosselen", "desc": "2 grote stuks", "price": 4, "unit": "pp" },
+        { "id": "hapje-escargots", "name": "Escargots", "desc": "3 grote stuks", "price": 4, "unit": "pp" },
+        { "id": "hapje-yakitori", "name": "Yakitori kip", "desc": "3 stuks", "price": 5, "unit": "pp" },
+        { "id": "hapje-empanada", "name": "Empanada homemade", "desc": "1 groot stuk", "price": 3.5, "unit": "pp" },
+        { "id": "hapje-zalmmousse", "name": "Zalmmousse", "desc": "", "price": 3.5, "unit": "pp" }
+      ]
+    },
+    {
+      "title": "Aperoplanken",
+      "sub": "Een feestelijke plank om samen van te genieten.",
+      "items": [
+        { "id": "plank-tapas", "name": "Tapas", "desc": "", "price": 10, "unit": "pp" },
+        { "id": "plank-wildpate", "name": "Wildpaté", "desc": "", "price": 10, "unit": "pp" }
+      ]
+    },
+    {
+      "title": "Soep",
+      "sub": "Huisgemaakt per liter, boordevol smaak en gezelligheid.",
+      "items": [
+        { "id": "soep-tomaat", "name": "Tomatensoep", "desc": "", "price": 10, "unit": "liter" },
+        { "id": "soep-tomaat-balletjes", "name": "Tomatensoep met balletjes", "desc": "", "price": 11, "unit": "liter" },
+        { "id": "soep-witloof", "name": "Witloofsoep met spekjes", "desc": "", "price": 11, "unit": "liter" }
+      ]
+    },
+    {
+      "title": "Voorgerecht",
+      "sub": "Een feestelijke start van je menu.",
+      "items": [
+        { "id": "vg-tomaat-crevette", "name": "Tomaat crevette", "desc": "", "price": 24, "unit": "pp" },
+        { "id": "vg-wildkroket-1", "name": "Wildkroket met garnituur", "desc": "1 stuk", "price": 8.5, "unit": "pp" },
+        { "id": "vg-wildkroket-2", "name": "Wildkroket met garnituur", "desc": "2 stuks", "price": 16, "unit": "pp" },
+        { "id": "vg-scampi-look", "name": "Scampi's look", "desc": "6 stuks", "price": 12, "unit": "pp" },
+        { "id": "vg-scampi-diabolique", "name": "Scampi's diabolique", "desc": "6 stuks", "price": 12, "unit": "pp" },
+        { "id": "vg-scampi-curry", "name": "Scampi's curry", "desc": "6 stuks", "price": 12, "unit": "pp" },
+        { "id": "vg-vispannetje", "name": "Vispannetje", "desc": "", "price": 14, "unit": "pp" }
+      ]
+    },
+    {
+      "title": "Hoofdgerecht",
+      "sub": "Royaal tafelen, met zorg bereid.",
+      "items": [
+        { "id": "hg-paella", "name": "Paella", "desc": "± 500 g", "price": 21, "unit": "pp" },
+        { "id": "hg-scampi-12", "name": "Scampi's", "desc": "12 stuks", "price": 18, "unit": "pp" },
+        { "id": "hg-scampi-15", "name": "Scampi's", "desc": "15 stuks", "price": 20, "unit": "pp" },
+        { "id": "hg-vispannetje", "name": "Vispannetje homemade", "desc": "+ waarborg pannetje", "price": 22, "unit": "pp" },
+        { "id": "hg-vol-au-vent", "name": "Vol-au-vent met vidé", "desc": "", "price": 18, "unit": "pp" },
+        { "id": "hg-tong-madeira", "name": "Tong in madeirasaus", "desc": "", "price": 24, "unit": "pp" }
+      ]
+    },
+    {
+      "title": "Bijgerechten",
+      "sub": "Om je feestmaal compleet te maken.",
+      "items": [
+        { "id": "bij-kroketten", "name": "Kroketten", "desc": "5 stuks", "price": 4, "unit": "pp" },
+        { "id": "bij-duchesse", "name": "Pommes duchesse", "desc": "", "price": 4, "unit": "pp" },
+        { "id": "bij-gratin", "name": "Gratin klassiek", "desc": "", "price": 4, "unit": "pp" },
+        { "id": "bij-gratin-med", "name": "Gratin mediterraan", "desc": "", "price": 4, "unit": "pp" }
+      ]
+    },
+    {
+      "title": "Dessert",
+      "sub": "Een zoete afsluiter, huisgemaakt.",
+      "items": [
+        { "id": "dessert-bordje", "name": "Zoet bordje", "desc": "chocomousse, tiramisu & rijstpap", "price": 10, "unit": "pp" }
+      ]
+    }
+  ]
+}
