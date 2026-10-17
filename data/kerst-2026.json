@@ -16,7 +16,7 @@
         { "id": "hapje-mosselen", "name": "Halve mosselen", "desc": "2 grote stuks", "price": 4, "unit": "pp" },
         { "id": "hapje-escargots", "name": "Escargots", "desc": "3 grote stuks", "price": 4, "unit": "pp" },
         { "id": "hapje-yakitori", "name": "Yakitori kip", "desc": "3 stuks", "price": 5, "unit": "pp" },
-        { "id": "hapje-empanada", "name": "Empanada homemade", "desc": "1 groot stuk", "price": 3.5, "unit": "pp" },
+        { "id": "hapje-empanada", "name": "Empanada's homemade", "desc": "", "price": 3.5, "unit": "pp" },
         { "id": "hapje-zalmmousse", "name": "Zalmmousse", "desc": "", "price": 3.5, "unit": "pp" }
       ]
     },
