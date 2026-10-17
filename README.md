@@ -33,3 +33,15 @@ Start vanuit deze map een eenvoudige webserver, bijvoorbeeld `python3 -m http.se
 Standalone bestelformulier op `www.tsmoakt.be/kerst/`, in de stijl van de kerstfolder. Menu, prijzen en afhaalmomenten staan in `data/kerst-2026.json`. Zet `orderDeadline` (bv. `"2026-12-20T23:59:00+01:00"`) om het formulier na die datum automatisch te sluiten.
 
 Bestellingen komen als nieuw dossier (status *Nieuw*) in Firestore `tsmoakt_requests` en verschijnen zo in de admin. Het formulier mag daar alleen aanmaken, niet lezen. Daarvoor moet de regel `isValidPublicOrder` uit `firebase/tsmoakt-firestore.rules.txt` gepubliceerd zijn in de Firebase-console (Firestore → Regels).
+
+### Mails bij een kerstbestelling
+
+Bij elke nieuwe kerstbestelling zet de Cloud Function `kerstbestellingMails` (`functions/`) twee mails klaar in de Firestore-collectie `mail`: een bevestiging voor de klant (antwoorden gaat naar info@) en een melding voor info@tsmoakt.be (antwoorden gaat naar de klant). De prijzen in de mails komen uit `data/kerst-2026.json`, niet uit de browser; wijkt een prijs af, dan staat er een waarschuwing in de mail naar info@. De extensie **Trigger Email from Firestore** verstuurt de mails.
+
+Eenmalig instellen:
+
+1. Zet het Firebase-project `tsmoakt-432c8` op het **Blaze**-plan (nodig voor functies en extensies).
+2. Installeer in de console de extensie **Trigger Email from Firestore**: collectie `mail`, regio `europe-west1`, SMTP-gegevens van de verzendende mailbox en als standaard afzender bv. `'t Smoakt <info@tsmoakt.be>`.
+3. Publiceer de functie vanuit deze map: `npm install -g firebase-tools`, `firebase login`, `cd functions && npm install && cd ..`, `firebase deploy --only functions`.
+
+De collectie `mail` heeft geen regels voor de browser, dus het formulier kan zelf geen mails versturen.
