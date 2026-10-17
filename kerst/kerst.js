@@ -91,14 +91,14 @@ function showError(msg) {
 function validate(form) {
   form.querySelectorAll('.invalid').forEach((el) => el.classList.remove('invalid'));
   const bad = [];
-  for (const name of ['name', 'email', 'phone', 'persons']) {
+  for (const name of ['name', 'email', 'phone']) {
     const el = form.elements[name];
     if (!el.value.trim() || !el.checkValidity()) bad.push(el);
   }
   if (bad.length) {
     bad.forEach((el) => el.classList.add('invalid'));
     bad[0].focus();
-    return 'Vul je naam, een geldig e-mailadres, je telefoonnummer en het aantal personen in.';
+    return 'Vul je naam, een geldig e-mailadres en je telefoonnummer in.';
   }
   if (!chosenLines().length) return 'Kies minstens één gerecht.';
   if (!form.elements.slot.value) { form.querySelector('.slot input').focus(); return 'Kies een afhaalmoment.'; }
@@ -119,7 +119,8 @@ function buildOrder(form) {
     customerName: form.elements.name.value.trim(),
     email: form.elements.email.value.trim(),
     phone: form.elements.phone.value.trim(),
-    adults: Math.floor(Number(form.elements.persons.value)),
+    // Geen aparte vraag meer: het grootste aantal personen bij een p.p.-gerecht geeft de omvang aan.
+    adults: Math.max(1, ...lines.filter((l) => l.unit === 'pp').map((l) => l.qty)),
     children: 0,
     location: 'Afhalen',
     eventDate: slot.date,
