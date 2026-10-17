@@ -36,12 +36,11 @@ Bestellingen komen als nieuw dossier (status *Nieuw*) in Firestore `tsmoakt_requ
 
 ### Mails bij een kerstbestelling
 
-Bij elke nieuwe kerstbestelling zet de Cloud Function `kerstbestellingMails` (`functions/`) twee mails klaar in de Firestore-collectie `mail`: een bevestiging voor de klant (antwoorden gaat naar info@) en een melding voor info@tsmoakt.be (antwoorden gaat naar de klant). De prijzen in de mails komen uit `data/kerst-2026.json`, niet uit de browser; wijkt een prijs af, dan staat er een waarschuwing in de mail naar info@. De extensie **Trigger Email from Firestore** verstuurt de mails.
+Bij elke nieuwe kerstbestelling verstuurt de Cloud Function `kerstbestellingMails` (`functions/`) twee mails via de SMTP van lesley@tsmoakt.be (Vimexx, `mail.tsmoakt.be:465`): een bevestiging voor de klant (antwoorden gaat naar info@) en een melding voor info@tsmoakt.be (antwoorden gaat naar de klant). De prijzen in de mails komen uit `data/kerst-2026.json`, niet uit de browser; wijkt een prijs af, dan staat er een waarschuwing in de mail naar info@. Het resultaat (`mail_klant`, `mail_info`) komt op het dossier in `tsmoakt_requests`.
 
 Eenmalig instellen:
 
-1. Zet het Firebase-project `tsmoakt-432c8` op het **Blaze**-plan (nodig voor functies en extensies).
-2. Installeer in de console de extensie **Trigger Email from Firestore**: collectie `mail`, regio `europe-west1`, SMTP-gegevens van de verzendende mailbox en als standaard afzender bv. `'t Smoakt <info@tsmoakt.be>`.
-3. Publiceer de functie vanuit deze map: `npm install -g firebase-tools`, `firebase login`, `cd functions && npm install && cd ..`, `firebase deploy --only functions`.
+1. Zet het Firebase-project `tsmoakt-432c8` op het **Blaze**-plan (nodig voor functies).
+2. Vanuit deze map: `npm install -g firebase-tools`, `firebase login`, `firebase functions:secrets:set SMTP_PASSWORD` (wachtwoord van lesley@), `cd functions && npm install && cd ..`, `firebase deploy --only functions`.
 
-De collectie `mail` heeft geen regels voor de browser, dus het formulier kan zelf geen mails versturen.
+De browser kan zelf geen mails versturen.
