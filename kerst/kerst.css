@@ -86,7 +86,6 @@ input, textarea { display: block; width: 100%; margin-top: 5px; padding: 11px 12
   font: inherit; font-weight: 500; font-size: 15px; background: #fff; color: var(--ink); }
 input:focus, textarea:focus { outline: none; border-color: var(--green2); box-shadow: 0 0 0 3px rgba(47,107,72,.15); }
 .two { display: grid; gap: 0 12px; }
-.persons input { max-width: 140px; }
 .slots { border: 0; padding: 0; margin: 16px 0 0; }
 .slots legend { font-size: 13px; font-weight: 600; padding: 0; }
 .slot { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 11px 14px; border: 1.5px solid var(--line);
