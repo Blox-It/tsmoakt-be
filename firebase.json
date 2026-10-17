@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs22",
+    "predeploy": ["cp data/kerst-2026.json \"$RESOURCE_DIR/kerst-2026.json\""]
+  }
+}
