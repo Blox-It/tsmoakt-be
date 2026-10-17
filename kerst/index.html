@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kerstbestelling 2026 | 't Smoakt catering</title>
+<meta name="description" content="Bestel je kerstgerechten bij 't Smoakt in Moerbeke Waas: hapjes, aperoplanken, soep, voor- en hoofdgerechten en dessert. Afhalen op 24, 25 of 26 december.">
+<meta name="theme-color" content="#fbf6ec">
+<link rel="icon" href="../assets/logo.webp">
+<link rel="preload" href="fonts/montserrat.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="kerst.css">
+<script type="module" src="kerst.js"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="bow" viewBox="0 0 120 90">
+    <path d="M56 40 C40 54 30 72 26 88 L40 82 L46 90 C50 72 56 56 60 44Z" fill="#861b20"/>
+    <path d="M64 40 C80 54 90 72 94 88 L80 82 L74 90 C70 72 64 56 60 44Z" fill="#861b20"/>
+    <path d="M60 38 C44 14 14 4 8 18 C2 34 30 46 60 42Z" fill="#b3262c"/>
+    <path d="M60 38 C76 14 106 4 112 18 C118 34 90 46 60 42Z" fill="#b3262c"/>
+    <path d="M60 39 C46 24 24 16 18 22 C30 24 46 32 60 41Z" fill="#861b20" opacity=".45"/>
+    <path d="M60 39 C74 24 96 16 102 22 C90 24 74 32 60 41Z" fill="#861b20" opacity=".45"/>
+    <ellipse cx="60" cy="40" rx="9" ry="8" fill="#b3262c"/>
+  </symbol>
+</svg>
+
+<header class="hero">
+  <div class="blob" aria-hidden="true"></div>
+  <div class="circles" aria-hidden="true">
+    <img class="c big" src="img/plank.webp" alt="" width="342" height="448">
+    <img class="c sm1" src="img/bladerdeeg.webp" alt="" width="147" height="205">
+    <img class="c sm2" src="img/perzik.webp" alt="" width="317" height="160">
+  </div>
+  <img class="lights" src="img/lichtjes.webp" alt="" aria-hidden="true">
+  <a class="logo" href="../index.html"><img src="../assets/logo.webp" alt="'t Smoakt"></a>
+  <div class="titles">
+    <p class="t1">‘t SMOAKT</p>
+    <h1 class="t2">KERSTBESTELLING</h1>
+    <p class="tag">Feestelijk tafelen: gezellig, royaal en puur genieten!</p>
+  </div>
+  <svg class="hbow" aria-hidden="true"><use href="#bow"/></svg>
+</header>
+
+<main>
+  <section class="intro">
+    <p>Kies hieronder je gerechten en het aantal. <strong>Alle prijzen zijn per persoon</strong>, soep per liter.</p>
+    <ul class="pickup-list" id="pickup-list" aria-label="Afhaalmomenten"></ul>
+  </section>
+
+  <div id="closed" class="notice" hidden>Bestellen voor kerst is afgesloten. Bedankt voor jullie interesse!</div>
+
+  <form id="order-form" novalidate>
+    <div id="menu"><p class="loading">Menu laden…</p></div>
+
+    <section class="block details" id="gegevens">
+      <h2>Jouw gegevens</h2>
+      <p class="sub">Zo weten we voor wie de bestelling klaarstaat.</p>
+      <label>Naam en voornaam<input name="name" autocomplete="name" required maxlength="100"></label>
+      <div class="two">
+        <label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="120"></label>
+        <label>Telefoon<input name="phone" type="tel" autocomplete="tel" required maxlength="30"></label>
+      </div>
+      <label class="persons">Voor hoeveel personen?<input name="persons" type="number" min="1" max="500" inputmode="numeric" required></label>
+
+      <fieldset class="slots">
+        <legend>Afhaalmoment</legend>
+        <div id="slot-options"></div>
+      </fieldset>
+
+      <label>Opmerkingen of allergieën<textarea name="notes" rows="3" maxlength="1000" placeholder="Bijvoorbeeld een allergie of een vraag"></textarea></label>
+      <label class="hp" aria-hidden="true">Laat dit leeg<input name="website" tabindex="-1" autocomplete="off"></label>
+      <label class="check"><input type="checkbox" name="privacy" required> <span>Ik ga akkoord dat 't Smoakt mijn gegevens gebruikt om deze bestelling te verwerken (<a href="../privacy.html" target="_blank" rel="noopener">privacy</a>).</span></label>
+    </section>
+
+    <section class="block summary" id="overzicht">
+      <h2>Overzicht</h2>
+      <div id="summary-lines"><p class="empty">Nog niets gekozen.</p></div>
+      <div class="total-row"><span>Totaal</span><strong id="summary-total">€ 0,00</strong></div>
+      <p class="fine">Het vispannetje wordt meegegeven met een waarborg voor het pannetje. Je betaalt bij afhaling.</p>
+      <p class="error" id="form-error" role="alert" hidden></p>
+      <button class="btn" type="submit" id="submit">Bestelling versturen</button>
+    </section>
+  </form>
+
+  <section class="block done" id="done" hidden tabindex="-1">
+    <svg class="dbow" aria-hidden="true"><use href="#bow"/></svg>
+    <h2>Bedankt voor je bestelling!</h2>
+    <p>We hebben je bestelling goed ontvangen en bevestigen ze zo snel mogelijk.</p>
+    <p class="ref">Bestelnummer <strong id="done-ref"></strong></p>
+    <div id="done-lines"></div>
+    <p class="wish">Fijne kerstdagen!</p>
+    <a class="btn ghost" href="../index.html">Naar tsmoakt.be</a>
+  </section>
+</main>
+
+<div class="bar" id="bar">
+  <div><span id="bar-count">0 gerechten</span><strong id="bar-total">€ 0,00</strong></div>
+  <a class="btn" href="#gegevens">Verder</a>
+</div>
+
+<footer>
+  <div class="services"><span>verjaardagsfeestjes</span><span>communie/lentefeesten</span><span>trouwfeesten</span><span>catering op maat</span></div>
+  <div class="contact"><a href="https://www.tsmoakt.be">www.tsmoakt.be</a><span>9180 Moerbeke Waas</span></div>
+  <div class="photos" aria-hidden="true">
+    <img src="img/dessert.webp" alt=""><img src="img/mousse.webp" alt=""><img src="img/spiesjes.webp" alt="">
+  </div>
+</footer>
+</body>
+</html>
