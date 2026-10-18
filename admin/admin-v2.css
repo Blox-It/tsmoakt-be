@@ -2,3 +2,5 @@
 .mail-status{background:#f2f7f3;border:1px solid #cbded0;border-radius:8px;padding:14px 16px;margin:18px 0}.dossier-form .mail-status h3{margin:0 0 10px}.mail-status p{margin:6px 0;font-size:.8rem;overflow-wrap:anywhere}.mail-status button{min-height:42px;border:1px solid #24533a;border-radius:5px;background:#fff;color:#24533a;padding:8px 12px;font:600 .8rem Poppins;cursor:pointer}.mail-status button:disabled{opacity:.65;cursor:wait}
 
 .product-search{display:block;max-width:520px;margin-bottom:16px;font-size:.75rem}.product-search input{display:block;width:100%;margin-top:6px}.product-row[hidden]{display:none}
+
+.delete-rejected{margin:0 12px 12px;padding:8px 10px;border:1px solid #e9b3a8;border-radius:6px;font:600 .65rem Poppins;cursor:pointer}.delete-rejected:disabled{opacity:.5;cursor:default}.bulk-delete-body{padding:4px 22px 18px;font-size:.85rem;line-height:1.6}.bulk-delete-status{padding:12px;border-radius:6px;background:#f0f2f3;font-size:.8rem}#delete-rejected-dialog{max-width:500px}#delete-rejected-dialog .danger{background:#a52d1e;color:#fff}

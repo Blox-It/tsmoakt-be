@@ -113,3 +113,9 @@ De actieve cateringformules en elk afzonderlijk kerstgerecht worden verkoopprodu
 Onder **Formules → Bewerken → Gekoppelde producten** kun je de koppeling aanpassen, ook voor Kerst 2026. Eén portie of formule koppelt standaard aan één verkoopproduct; dit is geen uitgewerkte ingrediëntenreceptuur. CRM-aanpassingen publiceren de websiteprijzen niet automatisch.
 
 Kerstbestellingen met nog lege productselecties worden in de CRM op basis van hun gerecht-ID aan de producten gekoppeld. Bij opslaan worden deze regels vastgelegd; bewust verwijderde regels keren niet terug. De oorspronkelijke bestelregels blijven bewaard. Controletests: `node --test tests/catalog.test.mjs`.
+
+## Afgewezen dossiers wissen
+
+De kolom **Afgewezen** bevat **Alles verwijderen** met een bevestigingsvenster en het volledige aantal, ongeacht een zoekfilter. Annuleren wist niets. Alleen de bij het openen geselecteerde dossiers die op het moment van de transactie nog afgewezen zijn, worden verwijderd. Nieuw afgewezen dossiers vereisen een nieuwe bevestiging. De actie wist de dossierdocumenten definitief; producten, formules, leveranciers en medewerkers blijven behouden.
+
+Transacties verwerken maximaal 200 dossiers tegelijk. Bij een fout meldt de CRM hoeveel dossiers al verwijderd zijn; opnieuw proberen vereist opnieuw bevestiging. Tests: `node --test tests/delete-rejected.test.mjs`; de extra integratietest draait alleen met `FIRESTORE_EMULATOR_HOST` tegen `demo-tsmoakt`.

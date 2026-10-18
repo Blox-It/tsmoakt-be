@@ -45,6 +45,7 @@
       <section class="stats" id="stats"></section>
       <section id="board-view" class="app-view">
         <div class="view-head"><div><h1>Aanvragen</h1><p>Sleep dossiers tussen de kolommen of open ze voor alle details.</p></div><label class="search">Zoeken<input id="search" type="search" placeholder="Naam, locatie of formule"></label></div>
+        <p id="delete-rejected-status" class="bulk-delete-status" role="status" tabindex="-1" hidden></p>
         <div id="board" class="board"></div>
       </section>
       <section id="calendar-view" class="app-view" hidden></section>
@@ -55,6 +56,14 @@
       <section id="suppliers-view" class="app-view" hidden></section>
     </main>
   </div>
+
+  <dialog id="delete-rejected-dialog" aria-labelledby="delete-rejected-title" aria-describedby="delete-rejected-description">
+    <form method="dialog" id="delete-rejected-form">
+      <header><h2 id="delete-rejected-title">Afgewezen dossiers verwijderen?</h2></header>
+      <div class="bulk-delete-body"><p id="delete-rejected-description"></p><p>Deze actie kan niet ongedaan worden gemaakt.</p></div>
+      <footer><button value="cancel" autofocus>Annuleren</button><button value="delete" class="danger">Definitief verwijderen</button></footer>
+    </form>
+  </dialog>
 
   <dialog id="request-dialog">
     <form method="dialog" id="request-form">

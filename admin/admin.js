@@ -1,7 +1,8 @@
+import { deleteRejectedRequests } from './delete-rejected.js';
 import { requestProducts } from './product-catalog.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
-import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp, runTransaction } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
 
 const firebaseConfig = {apiKey:'AIzaSyDj5g9at9UQnpgTD0Q45O6AkaqycvTU6mo',authDomain:'tsmoakt-432c8.firebaseapp.com',projectId:'tsmoakt-432c8',storageBucket:'tsmoakt-432c8.firebasestorage.app',messagingSenderId:'866651532666',appId:'1:866651532666:web:fd6693ffa8027b2cbafac3'};
 const allowed = ['kevin@bloxit.be'];
@@ -17,6 +18,7 @@ export const statuses = [
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));
 const money = amount => new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'}).format(amount);
+let rejectedSelection = [], deletingRejected = false;
 let requests = [], staff = [], products = [], catalog = [], filter = '', archiveFilter = '', archivePage = 1, unsubscribeRequests;
 
 function timestampMillis(value) {
@@ -90,6 +92,7 @@ function card(request) {
 }
 
 export function renderBoard() {
+  const rejectedCount=requests.filter(request=>request.status==='afgewezen').length;
   const visible = requests.filter(request => !isArchived(request) && searchable(request).includes(filter));
   $('#stats').innerHTML = [
     ['Totaal',visible.length],['Nieuw',visible.filter(item=>item.status==='todo').length],
@@ -98,8 +101,9 @@ export function renderBoard() {
   ].map(([label,count])=>`<div class="stat"><strong>${count}</strong><span>${label}</span></div>`).join('');
   $('#board').innerHTML = statuses.map(([key,label]) => {
     const list = visible.filter(item => (item.status || 'todo') === key);
-    return `<section class="column" data-status="${key}"><div class="column-head">${label}<span>${list.length}</span></div><div class="cards">${list.map(card).join('')}</div></section>`;
+    return `<section class="column" data-status="${key}"><div class="column-head">${label}<span>${list.length}</span></div>${key==='afgewezen'?`<button id="delete-rejected" class="delete-rejected danger" type="button" ${!rejectedCount||deletingRejected?'disabled':''}>Alles verwijderen (${rejectedCount})</button>`:''}<div class="cards">${list.map(card).join('')}</div></section>`;
   }).join('');
+  $('#delete-rejected').onclick = confirmDeleteRejected;
   document.querySelectorAll('.card').forEach(element => {
     element.onclick = () => openRequest(element.dataset.id);
     element.ondragstart = event => event.dataTransfer.setData('text/plain',element.dataset.id);
@@ -115,6 +119,41 @@ export function renderBoard() {
   });
   window.dispatchEvent(new CustomEvent('tsmoakt:requests',{detail:requests}));
 }
+
+function confirmDeleteRejected() {
+  if(deletingRejected)return;
+  rejectedSelection=requests.filter(request=>request.status==='afgewezen').map(request=>request.id);
+  if(!rejectedSelection.length)return;
+  $('#delete-rejected-description').textContent=`Je verwijdert alle ${rejectedSelection.length} afgewezen dossiers, ook dossiers die door een zoekfilter niet zichtbaar zijn. Dossiers met een andere status blijven behouden.`;
+  $('#delete-rejected-dialog').showModal();
+}
+
+$('#delete-rejected-dialog').addEventListener('cancel',event=>{if(deletingRejected)event.preventDefault()});
+$('#delete-rejected-form').onsubmit=async event=>{
+  if(event.submitter?.value!=='delete')return;
+  event.preventDefault();if(deletingRejected)return;
+  deletingRejected=true;event.submitter.textContent='Verwijderen…';
+  const controls=[...event.currentTarget.querySelectorAll('button')];controls.forEach(button=>button.disabled=true);
+  const status=$('#delete-rejected-status');status.hidden=false;status.textContent='Afgewezen dossiers verwijderen…';
+  renderBoard();
+  try{
+    const result=await deleteRejectedRequests(db,rejectedSelection,{doc,runTransaction},count=>{
+      status.textContent=`${count} van ${rejectedSelection.length} dossiers verwerkt…`;
+    });
+    if(result.deletedIds.includes($('#drawer').dataset.requestId))closeDrawer();
+    const deleted=new Set(result.deletedIds);
+    requests=requests.filter(request=>!deleted.has(request.id));
+    status.textContent=result.error
+      ? `${result.deletedIds.length} dossiers verwijderd. Niet alles kon worden verwerkt. ${result.error.code==='permission-denied'?'Je hebt geen toegang om deze dossiers te verwijderen.':'Controleer je verbinding en probeer opnieuw.'}`
+      : `${result.deletedIds.length} afgewezen dossiers verwijderd.${result.skippedIds.length?` ${result.skippedIds.length} overgeslagen: inmiddels een andere status of al verwijderd.`:''}`;
+    status.setAttribute('role',result.error?'alert':'status');
+    renderArchive();renderGlobalSearch();
+  }finally{
+    deletingRejected=false;controls.forEach(button=>button.disabled=false);
+    event.submitter.textContent='Definitief verwijderen';
+    $('#delete-rejected-dialog').close();renderBoard();status.focus();
+  }
+};
 
 function renderArchive() {
   const pageSize=15;
@@ -186,6 +225,7 @@ document.addEventListener('click',async event=>{
 export function openRequest(id) {
   const request = requests.find(item=>item.id===id);
   if (!request) return;
+  $('#drawer').dataset.requestId=id;
   const complete = completeness(request);
   const labels = {phone:'telefoon',eventDate:'datum',eventTime:'uur',location:'locatie',adults:'aantal volwassenen',service:'bediening'};
   let formulaSelections = structuredClone(request.formulaSelections || []);
