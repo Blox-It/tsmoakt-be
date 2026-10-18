@@ -81,8 +81,6 @@ input,textarea{min-height:46px;font-size:1rem;border-radius:4px}textarea{resize:
 .breadcrumbs{display:flex;flex-wrap:wrap;gap:8px;font-size:.85rem;margin-bottom:18px}
 .breadcrumbs a{text-decoration:underline;text-underline-offset:3px;min-height:24px}
 .service-from{font-size:1.2rem;font-weight:700;margin-bottom:14px}
-.minimum-badge{background:#fff4cf;color:#332a16;border-left:4px solid var(--yellow);padding:14px 18px;margin:0 0 22px;max-width:440px}
-.minimum-badge strong{display:block;font-size:1.15rem}.minimum-badge span{display:block;font-size:.9rem}
 .notice{font-size:.94rem}.notice strong{display:block;font-size:1.05rem}
 .service-faq{margin:44px 0}.service-faq details{border-bottom:1px solid var(--line);background:#fff;padding:0 20px}
 .service-faq summary{cursor:pointer;font-weight:600;min-height:56px;padding:17px 0;font-size:.94rem}

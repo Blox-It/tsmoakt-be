@@ -13,8 +13,6 @@ ROOT = Path(__file__).parent.resolve()
 OUT = ROOT / '_site'
 SITE = json.loads((ROOT / 'site.json').read_text())
 BASE = SITE['url']
-MINIMUM = 'Vanaf 30 personen'
-SMALL = 'Kleinere groepen in overleg'
 
 
 def read_json(path):
@@ -156,9 +154,8 @@ def service_page(c, items, categories):
         badge=f'<span class="formula-badge">{esc(x["group"])}</span>' if x.get('group') else ''
         cards.append(f'<article class="formula"><div>{badge}<h3>{esc(x["title"])}</h3><p>{esc(x.get("description",""))}</p></div><div class="formula-price">{esc(x.get("price") or "Prijs op aanvraag")} <small>{esc(x.get("unit", ""))}</small></div></article>')
     h1={'burgers':'Burgercatering voor jouw feest','bbq':'BBQ-catering op maat','paella':'Paella catering op locatie','steak':'Steak-friet catering'}.get(c['slug'], c['title']+' catering')
-    content=f'''<section class="detail-hero"><div class="detail-hero-inner"><div><nav class="breadcrumbs" aria-label="Broodkruimel"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/#aanbod">Aanbod</a><span aria-hidden="true"> / </span><span aria-current="page">{esc(c['title'])}</span></nav><h1>{esc(h1)}</h1><p>{esc(c['tagline'])}</p><p class="service-from">{price}</p><p class="minimum-badge"><strong>{MINIMUM}</strong><span>{SMALL}</span></p><a class="btn" href="/?formule={quote(c['slug'])}#contact">Vraag een voorstel voor {esc(c['title'].lower())}</a></div>{image(c['image'],c['title'],'(max-width: 650px) 90vw, 400px',True)}</div></section>
+    content=f'''<section class="detail-hero"><div class="detail-hero-inner"><div><nav class="breadcrumbs" aria-label="Broodkruimel"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/#aanbod">Aanbod</a><span aria-hidden="true"> / </span><span aria-current="page">{esc(c['title'])}</span></nav><h1>{esc(h1)}</h1><p>{esc(c['tagline'])}</p><p class="service-from">{price}</p><a class="btn" href="/?formule={quote(c['slug'])}#contact">Vraag een voorstel voor {esc(c['title'].lower())}</a></div>{image(c['image'],c['title'],'(max-width: 650px) 90vw, 400px',True)}</div></section>
 <section class="detail-main"><div class="intro-copy"><h2>{esc(c['heading'])}</h2><p>{esc(c['description'])}</p><p>We verzorgen catering vanuit {SITE['locality']}. {esc(SITE['serviceArea'])}. Geef je feestlocatie door bij je aanvraag.</p></div>
-<aside class="notice" aria-label="Minimumafname en prijzen"><strong>Vanaf 30 personen.</strong> Kleinere groepen in overleg. De prijzen zijn indicatief en gelden bij een minimumafname van 30 personen. Voor kleinere groepen kan, afhankelijk van locatie en wensen, een toeslag gelden. Vraag steeds een actuele offerte.</aside>
 <h2 id="formules">Formules en prijzen</h2><div class="formula-list">{''.join(cards)}</div>{faq_html(c)}
 <div class="detail-cta"><div><h2>Bespreek jouw feest met ons</h2><p>Vanaf 30 personen · kleinere groepen in overleg.</p></div><a class="btn" href="/?formule={quote(c['slug'])}#contact">Vraag je voorstel aan</a></div>
 <section class="related"><h2>Ook iets voor jouw gezelschap?</h2><div class="related-links">{''.join(f'<a href="{route(x)}">{esc(x["title"])} →</a>' for x in categories if x['slug']!=c['slug'])}</div></section></section>'''

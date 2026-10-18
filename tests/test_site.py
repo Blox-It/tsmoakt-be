@@ -50,7 +50,7 @@ class PublicSiteTests(unittest.TestCase):
             text=self.read(f'{slug}/index.html');page=Page(text)
             self.assertEqual(page.h1,1)
             self.assertEqual(page.canonical,[f'https://tsmoakt.be/{slug}/'])
-            self.assertIn('Vanaf 30 personen',text); self.assertIn('Kleinere groepen in overleg',text)
+            self.assertIn('Onze cateringformules gelden vanaf 30 personen.',text); self.assertIn('Kleinere groepen zijn mogelijk in overleg',text)
             self.assertIn('Vanaf € '+price+' p.p.',text)
             self.assertIn('class="formula"',text)
             self.assertTrue(page.meta.get('description'))
