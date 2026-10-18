@@ -120,7 +120,7 @@ def footer(categories):
 
 
 def layout(title, description, path, content, categories, **kwargs):
-    return '<!doctype html>\n<html lang="nl-BE"><head>\n'+head(title,description,path,**kwargs)+f'''\n<script src="/site.js" defer></script></head><body>
+    return '<!doctype html>\n<html lang="nl-BE"><head>\n<script>document.documentElement.classList.add("js-menu")</script>\n'+head(title,description,path,**kwargs)+f'''\n<script src="/site.js" defer onerror="document.documentElement.classList.remove('js-menu')"></script></head><body>
 {header(path)}<main id="inhoud" tabindex="-1">{content}</main>{footer(categories)}</body></html>'''
 
 
