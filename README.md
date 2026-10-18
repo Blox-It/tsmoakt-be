@@ -22,7 +22,7 @@ De workflow synchroniseert elke ochtend automatisch. Via **Actions → Prijzen u
 
 ## Publiceren via GitHub Pages
 
-Stel in **Settings → Pages** als bron **Deploy from a branch** in, met branch `main` en map `/ (root)`. Het bestand `CNAME` koppelt de site aan `www.tsmoakt.be`. Configureer daarnaast de DNS-records volgens de GitHub Pages-documentatie.
+Publicatie loopt via **GitHub Actions** (`.github/workflows/deploy-pages.yml`) bij elke push naar `main`. In **Settings → Pages** staat het eigen domein `tsmoakt.be`; `www.tsmoakt.be` verwijst hiernaar door. HTTPS is ingeschakeld. Een `CNAME`-bestand is bij deze publicatiemethode niet nodig.
 
 ## Lokaal bekijken
 
@@ -44,3 +44,11 @@ Eenmalig instellen:
 2. Vanuit deze map: `npm install -g firebase-tools`, `firebase login`, `firebase functions:secrets:set SMTP_PASSWORD` (wachtwoord van lesley@), `cd functions && npm install && cd ..`, `firebase deploy --only functions`.
 
 De browser kan zelf geen mails versturen.
+
+## Foto's en tijdelijk verborgen aanbod
+
+De homepage en actieve formulepagina's gebruiken echte stockfoto's, lokaal opgeslagen in `assets/photos/`. Bronnen, fotografen en licentie staan in `assets/photos/SOURCES.txt`.
+
+De losse tapasformule staat tijdelijk op `active: false` in `data/categories.json`. Daardoor verdwijnt ze uit het aanbod en leidt een rechtstreekse link terug naar het aanbod. Om ze opnieuw te tonen, zet je dit veld op `true`. Mocht de Google Sheet-synchronisatie later geactiveerd worden, neem dezelfde instelling over in het tabblad Categorieën. Het tapasgerecht in de kerstbestelling staat hier los van.
+
+Het feestdagenblok op de homepage en de menuknop verwijzen naar het bestaande `/kerst/`-formulier. De promotietekst noemt de afhaaldagen uit `data/kerst-2026.json`; werk die tekst mee bij als de afhaaldagen wijzigen. Verwijder het seizoensblok en de menulinks na de campagne.
