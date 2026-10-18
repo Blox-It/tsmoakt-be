@@ -1,0 +1,86 @@
+{
+  "commonFaq": [
+    {
+      "question": "Worden de gerechten ter plaatse bereid?",
+      "answer": "In de meeste gevallen bereiden we de gerechten ter plaatse. We stemmen vooraf met je af hoe de bereiding verloopt en welke voorzieningen nodig zijn op jouw feestlocatie."
+    },
+    {
+      "question": "Is bediening inbegrepen?",
+      "answer": "Bediening is niet standaard inbegrepen. Je kunt dit als extra aanvragen. De meerprijs hangt af van het soort bediening en het aantal medewerkers dat nodig is. We bespreken dit vooraf en nemen het op in je offerte."
+    },
+    {
+      "question": "Zijn borden en bestek inbegrepen?",
+      "answer": "Borden en bestek zijn niet standaard inbegrepen. Je kunt deze tegen een meerprijs laten voorzien. Vermeld dit bij je aanvraag, zodat we er rekening mee kunnen houden in het voorstel."
+    }
+  ],
+  "services": {
+    "burgers": {
+      "heading": "Een burgerformule die past bij jouw feest",
+      "paragraphs": [
+        "Van één stevige burger tot een formule à volonté: je kiest wat bij jouw gasten en gelegenheid past. Onze standaardburger bevat ongeveer 175 gram vlees en wordt aangevuld met verse groentjes, augurken, gebakken ajuin en saus naar keuze. Voor kinderen voorzien we een kleinere burger van ongeveer 125 gram.",
+        "Maak de maaltijd compleet met een portie friet of gekruide aardappelen. Je kunt deze afzonderlijk aan je formule toevoegen."
+      ],
+      "faq": [
+        {
+          "question": "Wat is het verschil tussen de burgerformules?",
+          "answer": "Je kiest voor één burger per persoon, twee burgers per persoon of à volonté. Bij de formule à volonté voorzien we maximaal drie porties per persoon."
+        },
+        {
+          "question": "Zijn frietjes inbegrepen?",
+          "answer": "Frietjes en gekruide aardappelen zijn afzonderlijke opties die je aan je burgerformule kunt toevoegen. De actuele prijzen vind je bij de formules op deze pagina."
+        }
+      ]
+    },
+    "bbq": {
+      "heading": "Van een eenvoudige barbecue tot een uitgebreid feestmaal",
+      "paragraphs": [
+        "Onze BBQ-formules combineren vlees met verse groenten, pasta, aardappelsalade, brood en sauzen. Je kiest een formule met één, twee, drie of vier stukken vlees per persoon.",
+        "De formule met één stuk vlees bevat worst. Bij twee stukken komt daar een bolletje of saté bij. De uitgebreidere formules bevatten worst, saté en kip, met steak als vierde stuk vlees."
+      ],
+      "faq": [
+        {
+          "question": "Wat is inbegrepen bij de BBQ-formules?",
+          "answer": "Naast het vlees zijn de vermelde bijgerechten inbegrepen: verse groenten, pasta, aardappelsalade, brood en sauzen. De gekozen formule bepaalt hoeveel stukken vlees je per persoon krijgt."
+        },
+        {
+          "question": "Kan ik vis of een andere samenstelling kiezen?",
+          "answer": "Dat bespreken we graag. Vis kan het vlees vervangen of aanvullen. Ook een volledig eigen samenstelling is mogelijk. Hiervoor maken we een voorstel op maat, omdat de prijs afhangt van jouw keuzes."
+        }
+      ]
+    },
+    "paella": {
+      "heading": "Paella voor een gezellige maaltijd met je gezelschap",
+      "paragraphs": [
+        "Met onze paellaformules kies je tussen een vaste portie en een formule à volonté. De standaardportie bedraagt ongeveer 350 gram per persoon. Voor kinderen is er een kleinere portie van ongeveer 200 gram.",
+        "Wil je jouw gasten de mogelijkheid geven om opnieuw aan te schuiven? Dan kun je kiezen voor à volonté, met een afzonderlijke prijs voor volwassenen en kinderen."
+      ],
+      "faq": [
+        {
+          "question": "Hoeveel paella krijg ik per persoon?",
+          "answer": "Bij de formule per persoon voorzien we ongeveer 350 gram voor volwassenen. De kinderportie bedraagt ongeveer 200 gram. Bij à volonté voorzien we maximaal drie porties per persoon."
+        },
+        {
+          "question": "Moet ik voor kinderen dezelfde formule bestellen?",
+          "answer": "Er zijn aparte kinderformules, zowel voor een vaste portie als voor à volonté. Vermeld bij je aanvraag hoeveel volwassenen en kinderen je verwacht, zodat we de hoeveelheden en het voorstel daarop kunnen afstemmen."
+        }
+      ]
+    },
+    "steak": {
+      "heading": "Een vertrouwde klassieker voor jouw feest",
+      "paragraphs": [
+        "Onze steak-frietformule bestaat uit een steak van ongeveer 250 gram, friet en saus. Je kiest voor een vaste portie per persoon of een formule à volonté.",
+        "Voor kinderen bieden we een alternatief met nuggets of frikandel en frietjes. Zo kun je binnen dezelfde aanvraag rekening houden met de verschillende gasten aan tafel."
+      ],
+      "faq": [
+        {
+          "question": "Wat zit er in de standaardformule steak-friet?",
+          "answer": "Per persoon voorzien we één steak van ongeveer 250 gram, met friet en saus. De actuele prijs staat bij de formules op deze pagina."
+        },
+        {
+          "question": "Welke formule is er voor kinderen?",
+          "answer": "Kinderen kunnen kiezen voor nuggets of frikandel met friet en saus. Er is ook een kinderformule à volonté. Geef bij je aanvraag het aantal kinderen en hun voorkeur door."
+        }
+      ]
+    }
+  }
+}

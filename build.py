@@ -140,14 +140,25 @@ def category_cards(categories, formulas):
 
 
 def faq_html(c):
-    return f'''<section class="service-faq" aria-labelledby="faq-title"><h2 id="faq-title">Praktisch voor jouw feest</h2>
-<details><summary>Voor hoeveel personen kan ik catering aanvragen?</summary><p>Onze cateringformules gelden vanaf 30 personen. Kleinere groepen zijn mogelijk in overleg; afhankelijk van de locatie en wensen kan een toeslag gelden.</p></details>
-<details><summary>Kan ik verschillende formules combineren?</summary><p>Ja, we bespreken graag welke combinatie bij jouw gezelschap past. Vermeld je wensen en het aantal gasten bij je aanvraag.</p></details>
-<details><summary>Hoe vraag ik een voorstel aan?</summary><p>Geef je datum, locatie, aantal personen en gewenste formule door. De prijzen op deze pagina zijn indicatief; vraag een actuele offerte voor jouw feest.</p></details>
-<details><summary>Wat als een gast een allergie heeft?</summary><p>Vermeld allergieën en dieetwensen vooraf in je aanvraag. We bespreken samen wat mogelijk is voor jouw menu.</p></details></section>'''
+    content = read_json('data/service-content.json')
+    service = content['services'].get(c['slug'], {})
+    questions = [
+        {'question': 'Voor hoeveel personen kan ik catering aanvragen?', 'answer': 'Onze cateringformules gelden vanaf 30 personen. Kleinere groepen zijn mogelijk in overleg; afhankelijk van de locatie en wensen kan een toeslag gelden.'},
+        *service.get('faq', []),
+        *content['commonFaq'],
+        {'question': 'Kan ik verschillende formules combineren?', 'answer': 'Ja, we bespreken graag welke combinatie bij jouw gezelschap past. Vermeld je wensen en het aantal gasten bij je aanvraag.'},
+        {'question': 'Hoe vraag ik een voorstel aan?', 'answer': 'Geef je datum, locatie, aantal personen en gewenste formule door. De prijzen op deze pagina zijn indicatief; vraag een actuele offerte voor jouw feest.'},
+        {'question': 'Wat als een gast een allergie heeft?', 'answer': 'Vermeld allergieën en dieetwensen vooraf in je aanvraag. We bespreken samen wat mogelijk is voor jouw menu.'},
+    ]
+    entries = ''.join(f'<details><summary>{esc(q["question"])}</summary><p>{esc(q["answer"])}</p></details>' for q in questions)
+    return f'<section class="service-faq" aria-labelledby="faq-title"><h2 id="faq-title">Praktisch voor jouw feest</h2>{entries}</section>'
 
 
 def service_page(c, items, categories):
+    service = read_json('data/service-content.json')['services'].get(c['slug'], {})
+    heading = service.get('heading', c['heading'])
+    paragraphs = service.get('paragraphs', [c['description']])
+    intro = ''.join(f'<p>{esc(paragraph)}</p>' for paragraph in paragraphs)
     price=from_price(items)
     cards=[]
     for x in sorted((x for x in items if x.get('active') is not False), key=lambda x:x.get('order',0)):
@@ -155,7 +166,7 @@ def service_page(c, items, categories):
         cards.append(f'<article class="formula"><div>{badge}<h3>{esc(x["title"])}</h3><p>{esc(x.get("description",""))}</p></div><div class="formula-price">{esc(x.get("price") or "Prijs op aanvraag")} <small>{esc(x.get("unit", ""))}</small></div></article>')
     h1={'burgers':'Burgercatering voor jouw feest','bbq':'BBQ-catering op maat','paella':'Paella catering op locatie','steak':'Steak-friet catering'}.get(c['slug'], c['title']+' catering')
     content=f'''<section class="detail-hero"><div class="detail-hero-inner"><div><nav class="breadcrumbs" aria-label="Broodkruimel"><a href="/">Home</a><span aria-hidden="true"> / </span><a href="/#aanbod">Aanbod</a><span aria-hidden="true"> / </span><span aria-current="page">{esc(c['title'])}</span></nav><h1>{esc(h1)}</h1><p>{esc(c['tagline'])}</p><p class="service-from">{price}</p><a class="btn" href="/?formule={quote(c['slug'])}#contact">Vraag een voorstel voor {esc(c['title'].lower())}</a></div>{image(c['image'],c['title'],'(max-width: 650px) 90vw, 400px',True)}</div></section>
-<section class="detail-main"><div class="intro-copy"><h2>{esc(c['heading'])}</h2><p>{esc(c['description'])}</p><p>We verzorgen catering vanuit {SITE['locality']}. {esc(SITE['serviceArea'])}. Geef je feestlocatie door bij je aanvraag.</p></div>
+<section class="detail-main"><div class="intro-copy"><h2>{esc(heading)}</h2>{intro}<p>We verzorgen catering vanuit {SITE['locality']}. {esc(SITE['serviceArea'])}. Geef je feestlocatie door bij je aanvraag.</p></div>
 <h2 id="formules">Formules en prijzen</h2><div class="formula-list">{''.join(cards)}</div>{faq_html(c)}
 <div class="detail-cta"><div><h2>Bespreek jouw feest met ons</h2><p>Vanaf 30 personen · kleinere groepen in overleg.</p></div><a class="btn" href="/?formule={quote(c['slug'])}#contact">Vraag je voorstel aan</a></div>
 <section class="related"><h2>Ook iets voor jouw gezelschap?</h2><div class="related-links">{''.join(f'<a href="{route(x)}">{esc(x["title"])} →</a>' for x in categories if x['slug']!=c['slug'])}</div></section></section>'''
