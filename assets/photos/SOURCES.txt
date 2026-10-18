@@ -19,3 +19,5 @@ https://www.pexels.com/photo/grilled-beef-with-fries-and-sauce-on-black-ceramic-
 https://images.pexels.com/photos/1352264/pexels-photo-1352264.jpeg?auto=compress&cs=tinysrgb&w=1400
 
 Responsive varianten: -640.webp, -900.webp (BBQ) en -1200.webp zijn verkleinde WebP-versies van dezelfde originele foto’s; de afgebeelde gerechten zijn niet digitaal gewijzigd.
+
+Eigen fotografie T'Smoakt, aangeleverd 18 oktober 2026: burgers, bbq, paella en realisaties/*.webp. Deze vervangen de bovenstaande stockbronnen voor burgers, bbq en paella.

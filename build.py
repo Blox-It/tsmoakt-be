@@ -46,7 +46,7 @@ def route(c):
 def image(slug, alt, sizes='(max-width: 650px) 90vw, 440px', eager=False, css=''):
     if slug == 'tapas':
         return f'<img class="{css}" src="/assets/tapas.webp" width="1024" height="1024" alt="{esc(alt)}" loading="{"eager" if eager else "lazy"}" decoding="async">'
-    heights = {'burgers': 801, 'bbq': 1600, 'paella': 1600, 'steak': 795}
+    heights = {'burgers': 1600, 'bbq': 1818, 'paella': 2667, 'steak': 795}
     middle = f'/assets/photos/{slug}-900.webp 900w, ' if slug == 'bbq' else ''
     return (f'<img class="{css}" src="/assets/photos/{slug}-1200.webp" '
             f'srcset="/assets/photos/{slug}-640.webp 640w, {middle}/assets/photos/{slug}-1200.webp 1200w" '
@@ -107,7 +107,7 @@ def head(title, description, path, photo='burgers', extra='', noindex=False, sch
 
 
 def header(current='/'):
-    links = [('/', 'Home'), ('/#over', 'Over ons'), ('/#aanbod', 'Aanbod'), ('/#contact', 'Contact'), ('/kerst/?van=website', 'Feestdagen bestellen')]
+    links = [('/', 'Home'), ('/#over', 'Over ons'), ('/#aanbod', 'Aanbod'), ('/#realisaties', 'Realisaties'), ('/#contact', 'Contact'), ('/kerst/?van=website', 'Feestdagen bestellen')]
     nav = ''.join(f'<a href="{url}"'+(' class="nav-holidays"' if url.startswith('/kerst/') else '')+
                   (' aria-current="page"' if url==current else '')+f'>{label}</a>' for url,label in links)
     return f'''<a class="skip-link" href="#inhoud">Naar de inhoud</a>
@@ -185,7 +185,7 @@ def home(categories, formulas):
     content=content.replace('<h1>T\'Smoakt</h1>', '<p class="hero-brand">T\'Smoakt</p><h1>Catering<br> in Moerbeke-Waas</h1>')
     content=content.replace('Catering op maat voor uw feesten, groot en klein.', 'Samen genieten, van de eerste hap tot de laatste gast.')
     content=content.replace('Een greep uit onze diensten','Cateringformules voor jouw feest')
-    content=content.replace('src="assets/photos/bbq.jpg" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy"', 'src="/assets/photos/bbq-640.webp" srcset="/assets/photos/bbq-640.webp 640w, /assets/photos/bbq-900.webp 900w, /assets/photos/bbq-1200.webp 1200w" sizes="(max-width:650px) 90vw,440px" width="1200" height="1600" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy" decoding="async"')
+    content=content.replace('src="assets/photos/bbq.jpg" alt="BBQ-spiesjes van T&#39;Smoakt" loading="lazy"', 'src="/assets/photos/bbq-640.webp" srcset="/assets/photos/bbq-640.webp 640w, /assets/photos/bbq-900.webp 900w, /assets/photos/bbq-1200.webp 1200w" sizes="(max-width:650px) 90vw,440px" width="1200" height="1818" alt="BBQ-spiesjes van T&#39;Smoakt" loading="lazy" decoding="async"')
     content=content.replace('href="kerst/"','href="/kerst/?van=website"')
     process='''<section class="section planning" aria-labelledby="planning-title"><p class="kicker">ZO WERKT HET</p><h2 id="planning-title">Van een idee naar een geslaagd feest</h2><ol><li><h3>Vertel ons je plannen</h3><p>Geef je datum, locatie en aantal gasten door.</p></li><li><h3>Kies samen je formule</h3><p>Burgers, BBQ, paella of steak-friet: we bespreken wat bij je gezelschap past.</p></li><li><h3>Ontvang een voorstel op maat</h3><p>We stemmen het menu en de praktische afspraken met je af.</p></li></ol><p><strong>Vanaf 30 personen.</strong> Kleinere groepen in overleg.</p></section>'''
     content=content.replace('<section class="section contact"', process+'<section class="section contact"')
