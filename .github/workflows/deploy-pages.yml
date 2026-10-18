@@ -23,12 +23,24 @@ jobs:
     steps:
       - name: Code ophalen
         uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Bouw statische pagina's
+        run: python3 build.py
+      - name: Controleer inhoud en links
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/check_site.py
+          node --check site.js
+          node --check category.js
+          node --check kerst/kerst.js
       - name: GitHub Pages instellen
         uses: actions/configure-pages@v5
       - name: Website uploaden
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Website publiceren
         id: deployment
         uses: actions/deploy-pages@v4

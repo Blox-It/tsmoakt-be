@@ -37,7 +37,7 @@ body { overflow-x: hidden; }
 .big { left: 4px; top: 12px; width: 170px; height: 170px; }
 .sm1 { left: 132px; top: 18px; width: 74px; height: 74px; }
 .sm2 { left: 140px; top: 100px; width: 80px; height: 80px; }
-.lights { position: absolute; left: 210px; top: 6px; width: 300px; max-width: none; }
+.lights { position: absolute; left: 210px; top: 6px; width: 300px; height: auto; max-width: none; }
 .logo { position: absolute; right: 10px; top: 10px; width: 104px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.2)); }
 .titles { position: absolute; left: 20px; right: 20px; top: 205px; }
 .t1 { margin: 0; font-size: 30px; font-weight: 800; color: var(--green); letter-spacing: .5px; line-height: 1.05; }
@@ -164,3 +164,14 @@ footer { position: relative; max-width: 980px; margin: 40px auto 0; padding: 0 1
 
 /* Keep decorative lights inside the mobile header. */
 @media (max-width: 719px) { .hero { overflow: hidden; } }
+
+/* Accessible controls and responsive ordering. */
+.skip-link{position:absolute;left:12px;top:-100px;z-index:100;background:#fff;color:#24533a;border:2px solid #24533a;padding:12px 18px;font-weight:700}.skip-link:focus{top:12px}
+#inhoud:focus{outline:0}.item h3.n{margin:0;line-height:1.45}.form-instructions{font-size:14px;line-height:1.6;margin-top:20px}
+.step button{width:44px;height:44px}.step input{min-height:44px;width:40px;font-size:16px}.item .pr small{color:#66573e}
+input,textarea{font-size:16px}.check{padding:8px 0;min-height:44px}.check input{min-width:22px;min-height:22px}
+a:focus-visible,button:focus-visible{outline:3px solid #24533a;outline-offset:4px}
+.t2{font-size:clamp(23px,5.6vw,40px)}.titles{max-width:calc(100% - 40px)}
+@media(min-width:720px) and (max-width:1000px){.titles{left:310px;right:20px}.t2{font-size:30px}.tag{font-size:24px}}
+@media(max-width:400px){.item{column-gap:8px}.item .n{font-size:14px}.step button{width:40px}.step input{width:32px}.t2{font-size:24px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}

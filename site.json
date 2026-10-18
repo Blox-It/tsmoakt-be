@@ -1,0 +1,31 @@
+{
+  "url": "https://tsmoakt.be",
+  "name": "T'Smoakt",
+  "email": "info@tsmoakt.be",
+  "phone": "+32 499 62 83 36",
+  "phoneHref": "+32499628336",
+  "street": "De Kerchovestraat 20",
+  "postalCode": "9180",
+  "locality": "Moerbeke-Waas",
+  "vatID": "BE0664917875",
+  "facebook": "https://www.facebook.com/profile.php?id=61557307213180",
+  "serviceArea": "Catering op andere locaties is mogelijk in overleg",
+  "routes": {
+    "burgers": "hamburgers",
+    "bbq": "bbq",
+    "paella": "paella",
+    "steak": "steak",
+    "tapas": "tapasplanken"
+  },
+  "redirects": {
+    "/burgers/": "/hamburgers/",
+    "/steak-friet/": "/steak/",
+    "/services/": "/#aanbod",
+    "/about/": "/#over",
+    "/contact/": "/#contact",
+    "/privacy-policy/": "/privacy.html",
+    "/algemene-voorwaarden/": "/voorwaarden.html",
+    "/feestdagen-catering-2025-tapas-kaas-fondue-en-gourmetplanken/": "/kerst/"
+  },
+  "googleVerification": "2XpNF5eumUWw95kNn90oBFZuq7-1-9-_bsMGhyIaEdY"
+}

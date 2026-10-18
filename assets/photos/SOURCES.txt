@@ -17,3 +17,5 @@ https://images.pexels.com/photos/27848355/pexels-photo-27848355.jpeg?auto=compre
 steak.jpg — Lukas Blazek
 https://www.pexels.com/photo/grilled-beef-with-fries-and-sauce-on-black-ceramic-plate-1352264/
 https://images.pexels.com/photos/1352264/pexels-photo-1352264.jpeg?auto=compress&cs=tinysrgb&w=1400
+
+Responsive varianten: -640.webp, -900.webp (BBQ) en -1200.webp zijn verkleinde WebP-versies van dezelfde originele foto’s; de afgebeelde gerechten zijn niet digitaal gewijzigd.

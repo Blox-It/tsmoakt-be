@@ -35,9 +35,9 @@ function renderMenu(data) {
             <div class="pr">${priceLabel(item.price)} <small>${item.unit === 'liter' ? '/ liter' : 'p.p.'}</small></div>
           </div>
           <div class="step" role="group" aria-label="Aantal ${esc(lineName(item))}">
-            <button type="button" data-d="-1" aria-label="Minder">−</button>
-            <input type="number" min="0" max="${MAX_QTY}" value="0" inputmode="numeric" aria-label="${item.unit === 'liter' ? 'Aantal liter' : 'Aantal personen'}">
-            <button type="button" data-d="1" aria-label="Meer">+</button>
+            <button type="button" data-d="-1" aria-label="Minder ${esc(lineName(item))}">−</button>
+            <input type="number" min="0" max="${MAX_QTY}" value="0" inputmode="numeric" aria-label="${item.unit === 'liter' ? 'Aantal liter' : 'Aantal personen'} ${esc(lineName(item))}">
+            <button type="button" data-d="1" aria-label="Meer ${esc(lineName(item))}">+</button>
           </div>
           <div class="unit">${item.unit === 'liter' ? 'liter' : 'personen'}</div>
         </div>`).join('')}
@@ -57,6 +57,7 @@ function setQty(id, value) {
   const row = document.querySelector(`.item[data-id="${id}"]`);
   row.querySelector('input').value = q;
   row.querySelector('[data-d="-1"]').disabled = q === 0;
+  row.querySelector('[data-d="1"]').disabled = q === MAX_QTY;
   row.classList.toggle('on', q > 0);
   update();
 }
@@ -89,14 +90,14 @@ function showError(msg) {
 }
 
 function validate(form) {
-  form.querySelectorAll('.invalid').forEach((el) => el.classList.remove('invalid'));
+  form.querySelectorAll('.invalid').forEach((el) => {el.classList.remove('invalid');el.removeAttribute('aria-invalid');el.removeAttribute('aria-describedby')});
   const bad = [];
   for (const name of ['name', 'email', 'phone']) {
     const el = form.elements[name];
     if (!el.value.trim() || !el.checkValidity()) bad.push(el);
   }
   if (bad.length) {
-    bad.forEach((el) => el.classList.add('invalid'));
+    bad.forEach((el) => {el.classList.add('invalid');el.setAttribute('aria-invalid','true');el.setAttribute('aria-describedby','form-error')});
     bad[0].focus();
     return 'Vul je naam, een geldig e-mailadres en je telefoonnummer in.';
   }
@@ -170,7 +171,7 @@ async function onSubmit(event) {
     document.querySelector('.intro').hidden = true;
     const done = $('#done');
     done.hidden = false;
-    done.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    done.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
     done.focus({ preventScroll: true });
   } catch (err) {
     console.error(err);
@@ -206,10 +207,13 @@ async function init() {
   });
   state.items.forEach((_, id) => setQty(id, 0));
   $('#order-form').addEventListener('submit', onSubmit);
-  $('#order-form').addEventListener('input', (e) => e.target.classList.remove('invalid'));
+  $('#submit').disabled = false;
+  $('#order-form').addEventListener('input', (e) => {e.target.classList.remove('invalid');e.target.removeAttribute('aria-invalid');e.target.removeAttribute('aria-describedby')});
 }
 
 init().catch((err) => {
   console.error(err);
-  $('#menu').innerHTML = '<p class="error">Het menu kon niet geladen worden. Herlaad de pagina of mail naar info@tsmoakt.be.</p>';
+  $('#submit').disabled = true;
+  $('#form-error').hidden = false;
+  $('#form-error').textContent = 'Online bestellen is momenteel niet beschikbaar. Herlaad de pagina, of mail je bestelling naar info@tsmoakt.be. Het menu hieronder blijft beschikbaar.';
 });
