@@ -45,7 +45,7 @@ Open daarna `http://localhost:8080`. Serveer `_site/`, niet de bronmap. De publi
 - `build.py`: gedeelde navigatie, footer, metadata, statische formulepagina’s, redirects, sitemap en robots.txt.
 - `site.json`: canoniek domein, bedrijfsgegevens, routes, bevestigde Google-verificatiecode en oud-naar-nieuwlinks. Het werkgebied is voorlopig conservatief beschreven; voeg pas bevestigde regio’s toe.
 - `index.html`: bron voor de inhoud van de homepage; de build vult onder meer de formulekaarten en contacthulp aan.
-- `site.js`: toegankelijke mobiele navigatie en het e-mailcontactformulier. Geen voorleesfunctie.
+- `site.js`: toegankelijke mobiele navigatie en het online contactformulier. Geen voorleesfunctie.
 - `data/categories.json` en `data/formulas-*.json`: cateringteksten en prijzen. `priceLabel` is historisch; de echte vanafprijs komt uit actieve regels met `homepagePrice=true`, zodat kinderprijzen en extra’s niet automatisch de hoofdprijs worden.
 - `kerst/index.html`, `kerst/kerst.js`, `kerst/kerst.css` en `data/kerst-2026.json`: kerstbestelling. De build zet ook het menu en de prijzen vooraf in de HTML, zodat deze zonder JavaScript leesbaar blijven.
 - `privacy.html` en `voorwaarden.html`: inhoud van de juridische pagina’s; de build past de gedeelde opmaak toe.
@@ -57,6 +57,27 @@ De oude WordPress-adressen `/hamburgers/`, `/bbq/`, `/paella/` en `/steak/` blij
 De Google-verificatiecode is overgenomen van de oude website. Dien `https://tsmoakt.be/sitemap.xml` in bij de geverifieerde Search Console-property en controleer daar indexering en eventuele migratiefouten. Een correcte technische inrichting garandeert geen positie in zoekresultaten. Structured data bevat alleen bekende bedrijfsgegevens, diensten en broodkruimels; geen verzonnen beoordelingen of openingstijden.
 
 Lettertypes worden lokaal geladen (`assets/fonts/`, licentie meegeleverd); foto’s hebben responsive WebP-varianten. Controleer bij inhoudswijzigingen ook mobiel, toetsenbordbediening, contrast en het bestelproces. Gebruik bij geautomatiseerde besteltests uitsluitend de bestaande `window.tsmoaktSaveOrder`-teststub, zodat er geen echte dossiers of mails ontstaan.
+
+## Cateringaanvragen via de homepage
+
+Het formulier roept de Firebase callable `cateringAanvraag` aan. De server valideert alle velden en maakt een dossier met `source: website-contact` en status `todo` in `tsmoakt_requests`. Publieke bezoekers krijgen geen lees- of wijzigrechten. De bestaande Firestore-regels hoeven hiervoor niet verruimd te worden.
+
+Een UUID per aanvraag voorkomt dubbele dossiers bij dubbel klikken of hernemen na een netwerkfout. Dezelfde code met andere inhoud wordt geweigerd. De server begrenst aanvragen op vijf nieuwe dossiers per IP-adres/tijdsvenster van vijftien minuten; alleen een hash per tijdsvenster wordt opgeslagen, geen ruw IP-adres. Tellers staan in `tsmoakt_contact_limits`; oude tellers kunnen periodiek door een beheerder verwijderd worden.
+
+Na ontvangst verschijnen het aanvraagnummer en de bevestiging op de website. De klant ontvangt een kopie, info@tsmoakt.be krijgt de melding. De klantmail bevestigt ontvangst, geen definitieve reservatie.
+
+## Mailverwerking en herstel
+
+De bestaande naam `kerstbestellingMails` blijft behouden, maar de functie behandelt nu zowel `website-contact` als `bestelformulier-kerst-2026`. De bronfilter voorkomt mails voor gewone handmatige adminmutaties. Elke ontvanger heeft een eigen marker in `tsmoakt_mails` en een eigen dossierstatus (`mail_klant`/`mail_info`).
+
+- Tijdelijke fouten worden automatisch hernomen via Firestore-events, maximaal acht verzendpogingen per ontvanger binnen het retryvenster van het platform.
+- Een transactioneel vastgelegde claim van drie minuten voorkomt gelijktijdige dubbele verzending. Een verlopen claim kan hernomen worden; een geslaagde ontvanger wordt overgeslagen.
+- De status wordt pas `verstuurd` wanneer de SMTP-server de mail heeft aangenomen. Dit garandeert geen inboxplaatsing. SMTP biedt ook geen exact-eenmaalgarantie als de server een mail aanneemt net voordat het opslaan van de verzendstatus mislukt; een vaste Message-ID beperkt de impact maar vervangt geen provider-idempotentie.
+- Bij blijvende fouten toont het dossier `mislukt — opnieuw versturen nodig`. Alleen de aangemelde beheerder kan via de knop **Mislukte mails opnieuw versturen** de callable `herneemAanvraagMails` gebruiken. Reeds verstuurde mails blijven overgeslagen. Corrigeer zo nodig eerst het e-mailadres en sla het dossier op.
+
+Backendwijzigingen worden eerst met `firebase deploy --only functions --project tsmoakt-432c8` gepubliceerd. Pas daarna de website publiceren. GitHub Pages publiceert zelf geen Firebase-functies. De Firebase-predeploy draait de Node-tests.
+
+Tests: `npm ci --prefix functions`, `cp data/kerst-2026.json functions/kerst-2026.json`, `npm test --prefix functions`. De integratietests vereisen een lokale Firestore-emulator en het project `demo-tsmoakt`; zonder emulator worden alleen die drie tests overgeslagen. Test de website met `window.tsmoaktSubmitContact` als lokale stub en het kerstformulier met `window.tsmoaktSaveOrder` om echte mails te vermijden.
 
 ## Kerstbestelling (`/kerst/`)
 

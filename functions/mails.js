@@ -1,8 +1,7 @@
 const menu = require('./kerst-2026.json');
 
 const INFO = 'info@tsmoakt.be';
-// github.io stuurt na de domeinwissel vanzelf door naar www.tsmoakt.be.
-const ADMIN_URL = 'https://blox-it.github.io/tsmoakt-be/admin/';
+const ADMIN_URL = 'https://tsmoakt.be/admin/';
 
 const prices = new Map(menu.sections.flatMap((s) => s.items.map((i) => [i.id, i])));
 const euro = (n) => '€ ' + Number(n).toFixed(2).replace('.', ',');
@@ -33,11 +32,11 @@ function linesText(lines, total) {
   return lines.map((l) => `- ${l.qty} ${unitLabel(l.unit, l.qty)} × ${l.name}: ${euro(l.total)}`).join('\n') + `\nTotaal: ${euro(total)}`;
 }
 
-function wrap(title, body) {
+function wrap(title, body, label='KERSTBESTELLING 2026') {
   return `<!doctype html><html lang="nl"><body style="margin:0;background:#fbf6ec;font-family:Arial,Helvetica,sans-serif;color:#2a2a26">
 <div style="max-width:560px;margin:0 auto;padding:24px 16px">
 <p style="margin:0;font-size:22px;font-weight:800;color:#24533a">‘t SMOAKT</p>
-<p style="margin:0 0 18px;font-size:13px;font-weight:700;letter-spacing:2px;color:#b3262c">KERSTBESTELLING 2026</p>
+<p style="margin:0 0 18px;font-size:13px;font-weight:700;letter-spacing:2px;color:#b3262c">${esc(label)}</p>
 <div style="background:#fffdf8;border:1px solid #e4d8c2;border-radius:14px;padding:22px 20px">
 <h1 style="margin:0 0 12px;font-size:20px;color:#24533a">${title}</h1>${body}</div>
 <p style="font-size:12px;color:#6b6b62;margin:16px 0 0">'t Smoakt catering · 9180 Moerbeke Waas · <a href="https://www.tsmoakt.be" style="color:#24533a">www.tsmoakt.be</a></p>
@@ -86,4 +85,21 @@ ${order.customerNotes ? `<p style="margin:16px 0 0"><strong>Opmerking klant:</st
   };
 }
 
-module.exports = { priceLines, customerMail, infoMail };
+function contactMails(request, ref) {
+  const date=request.eventDate ? request.eventDate.split('-').reverse().join('/') : 'Nog te bepalen';
+  const details=`Naam: ${request.customerName}\nE-mail: ${request.email}\nTelefoon: ${request.phone || '-'}\nDatum: ${date}\nAantal personen: ${request.adults || 'Nog te bepalen'}\nLocatie: ${request.location || 'Nog te bepalen'}\n\nBericht:\n${request.notes}`;
+  const summary=`<p><strong>Aanvraagnummer:</strong> ${esc(ref)}</p><div style="white-space:pre-wrap;line-height:1.6">${esc(details)}</div>`;
+  return [
+    ['klant',{to:[request.email],replyTo:INFO,message:{
+      subject:`Je cateringaanvraag bij T'Smoakt (${ref})`,
+      text:`Dag ${request.customerName},\n\nBedankt voor je aanvraag! We hebben ze goed ontvangen en nemen contact met je op voor een voorstel. Dit is nog geen definitieve reservatie.\n\nAanvraagnummer: ${ref}\n${details}\n\nWil je iets toevoegen? Antwoord op deze mail.\nT'Smoakt`,
+      html:wrap('We hebben je aanvraag ontvangen',`<p>Dag ${esc(request.customerName)},</p><p>Bedankt voor je aanvraag! We nemen contact met je op voor een voorstel. Dit is nog geen definitieve reservatie.</p>${summary}<p>Wil je iets toevoegen? Antwoord op deze mail.</p>`,'CATERINGAANVRAAG')
+    }}],
+    ['info',{to:[INFO],replyTo:request.email,message:{
+      subject:`Nieuwe cateringaanvraag: ${request.customerName} (${ref})`,
+      text:`Nieuwe cateringaanvraag\nAanvraagnummer: ${ref}\n\n${details}\n\nAdmin: ${ADMIN_URL}`,
+      html:wrap('Nieuwe cateringaanvraag',`${summary}<p><a href="${ADMIN_URL}">Open de aanvraag in de admin</a></p>`,'CATERINGAANVRAAG')
+    }}]
+  ];
+}
+module.exports = { priceLines, customerMail, infoMail, contactMails };

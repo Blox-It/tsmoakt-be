@@ -14,7 +14,7 @@ export const statuses = [
 ];
 
 const $ = selector => document.querySelector(selector);
-const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#039;'}[character]));
+const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));
 const money = amount => new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'}).format(amount);
 let requests = [], staff = [], products = [], catalog = [], filter = '', archiveFilter = '', archivePage = 1, unsubscribeRequests;
 
@@ -152,6 +152,36 @@ function lineSummary(formulaSelections,productSelections) {
   return formulaRows + productRows || '<p class="empty-note">Nog geen formules of losse producten gekozen.</p>';
 }
 
+function mailPanel(request) {
+  if (!['website-contact','bestelformulier-kerst-2026'].includes(request.source)) return '';
+  return `<section id="request-mail-status" data-id="${esc(request.id)}" class="mail-status"><h3>E-mailbevestigingen</h3>
+    <p>Klant: <strong data-mail-kind="klant">${esc(request.mail_klant || 'in wachtrij')}</strong></p>
+    <p>info@tsmoakt.be: <strong data-mail-kind="info">${esc(request.mail_info || 'in wachtrij')}</strong></p>
+    <button type="button" id="retry-mails" ${![request.mail_klant,request.mail_info].some(x=>x?.includes('mislukt'))?'hidden':''}>Mislukte mails opnieuw versturen</button>
+    <p id="mail-retry-result" role="status"></p></section>`;
+}
+function refreshMailPanel() {
+  const panel=$('#request-mail-status');
+  if(!panel)return;
+  const request=requests.find(item=>item.id===panel.dataset.id);
+  if(!request)return;
+  for(const kind of ['klant','info'])panel.querySelector(`[data-mail-kind="${kind}"]`).textContent=request[`mail_${kind}`] || 'in wachtrij';
+  panel.querySelector('#retry-mails').hidden=![request.mail_klant,request.mail_info].some(x=>x?.includes('mislukt'));
+}
+document.addEventListener('click',async event=>{
+  const button=event.target.closest('#retry-mails');
+  if(!button||button.disabled)return;
+  const id=button.closest('[data-id]').dataset.id;
+  const result=$('#mail-retry-result');
+  button.disabled=true;result.textContent='Verzendstatus controleren…';
+  try {
+    const {getFunctions,httpsCallable}=await import('https://www.gstatic.com/firebasejs/11.0.2/firebase-functions.js');
+    const response=await httpsCallable(getFunctions(app,'europe-west1'),'herneemAanvraagMails',{timeout:120000})({id});
+    result.textContent=`Klant: ${response.data.klant}. Info: ${response.data.info}.`;
+  } catch(error) { result.textContent=error.message || 'Opnieuw versturen lukte niet. Probeer later opnieuw.'; }
+  finally {button.disabled=false;}
+});
+
 export function openRequest(id) {
   const request = requests.find(item=>item.id===id);
   if (!request) return;
@@ -163,6 +193,7 @@ export function openRequest(id) {
   $('#drawer-content').innerHTML = `<form id="dossier-form" class="dossier-form">
     <div class="drawer-title"><div><h2>${esc(request.customerName || 'Dossier')}</h2><div class="drawer-meta">Laatst bijgewerkt dossier</div></div><button class="primary" type="submit">Opslaan</button></div>
     ${complete.missing.length?`<div class="missing"><strong>Dossier ${complete.score}% volledig</strong><br>Ontbreekt: ${complete.missing.map(field=>labels[field]||field).join(', ')}</div>`:''}
+    ${mailPanel(request)}
     <h3>Klant en evenement</h3><div class="detail-form-grid">
       <label>Naam<input name="customerName" value="${esc(request.customerName)}" required></label><label>E-mail<input name="email" type="email" value="${esc(request.email)}" required></label>
       <label>Telefoon<input name="phone" value="${esc(request.phone)}"></label><label>Locatie<input name="location" value="${esc(request.location)}"></label>
@@ -256,5 +287,5 @@ onAuthStateChanged(auth,user => {
   const ok=user&&allowed.includes((user.email||'').toLowerCase());$('#login').hidden=ok;$('#app').hidden=!ok;
   if (!ok) {if(unsubscribeRequests)unsubscribeRequests();return}
   $('#logout-btn').textContent=(user.displayName||user.email).split(/\s|@/).map(part=>part[0]).join('').slice(0,2).toUpperCase();
-  unsubscribeRequests=onSnapshot(query(collection(db,'tsmoakt_requests'),orderBy('updatedAt','desc')),snapshot=>{requests=snapshot.docs.map(item=>({id:item.id,...item.data()}));renderBoard();renderArchive();renderGlobalSearch()},error=>{$('#board').innerHTML=`<p>Firestore-toegang ontbreekt nog: ${esc(error.message)}</p>`});
+  unsubscribeRequests=onSnapshot(query(collection(db,'tsmoakt_requests'),orderBy('updatedAt','desc')),snapshot=>{requests=snapshot.docs.map(item=>({id:item.id,...item.data()}));renderBoard();renderArchive();renderGlobalSearch();refreshMailPanel()},error=>{$('#board').innerHTML=`<p>Firestore-toegang ontbreekt nog: ${esc(error.message)}</p>`});
 });

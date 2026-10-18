@@ -179,11 +179,6 @@ def home(categories, formulas):
     content=content.replace('Een greep uit onze diensten','Cateringformules voor jouw feest')
     content=content.replace('src="assets/photos/bbq.jpg" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy"', 'src="/assets/photos/bbq-640.webp" srcset="/assets/photos/bbq-640.webp 640w, /assets/photos/bbq-900.webp 900w, /assets/photos/bbq-1200.webp 1200w" sizes="(max-width:650px) 90vw,440px" width="1200" height="1600" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy" decoding="async"')
     content=content.replace('href="kerst/"','href="/kerst/?van=website"')
-    content=content.replace('<label>Naam en voornaam<input name="name" required>', '<p id="contact-help" class="form-help">Velden met * zijn verplicht. Dit formulier opent je e-mailprogramma; verstuur daar je aanvraag. Liever rechtstreeks? <a href="mailto:info@tsmoakt.be">Mail ons</a> of <a href="tel:+32499628336">bel ons</a>.</p><label>Naam en voornaam *<input name="name" autocomplete="name" maxlength="100" required>')
-    content=content.replace('<label>E-mail<input name="email" type="email" required>', '<label>E-mail *<input name="email" type="email" autocomplete="email" maxlength="120" required>')
-    content=content.replace('<label>Uw bericht<textarea name="message" rows="4" required>', '<label>Locatie van je feest<input name="location" autocomplete="off" maxlength="200" placeholder="Gemeente of adres"></label><label>Je bericht *<textarea name="message" rows="4" maxlength="3000" required>')
-    content=content.replace('<form id="contact-form">','<form id="contact-form" aria-describedby="contact-help"><noscript><p>Mail je aanvraag rechtstreeks naar <a href="mailto:info@tsmoakt.be">info@tsmoakt.be</a>. Het formulier hieronder heeft JavaScript nodig.</p><style>#contact-form label,#contact-form .two,#contact-form button{display:none}</style></noscript>')
-    content=content.replace('</button></form>','</button><p id="contact-status" role="status"></p></form>')
     process='''<section class="section planning" aria-labelledby="planning-title"><p class="kicker">ZO WERKT HET</p><h2 id="planning-title">Van een idee naar een geslaagd feest</h2><ol><li><h3>Vertel ons je plannen</h3><p>Geef je datum, locatie en aantal gasten door.</p></li><li><h3>Kies samen je formule</h3><p>Burgers, BBQ, paella of steak-friet: we bespreken wat bij je gezelschap past.</p></li><li><h3>Ontvang een voorstel op maat</h3><p>We stemmen het menu en de praktische afspraken met je af.</p></li></ol><p><strong>Vanaf 30 personen.</strong> Kleinere groepen in overleg.</p></section>'''
     content=content.replace('<section class="section contact"', process+'<section class="section contact"')
     return layout("Catering Moerbeke-Waas | T'Smoakt", 'Burgers, BBQ, paella en steak-friet voor jouw feest. Catering vanuit Moerbeke-Waas vanaf 30 personen, kleinere groepen in overleg. Vraag je voorstel.', '/',content,categories)
@@ -245,7 +240,17 @@ def build():
         content=content.replace('href="index.html"','href="/"')
         write(path,layout(title,description,'/'+path,'<div class="legal">'+content+'</div>',categories,css='/legal.css'));urls.append('/'+path)
     write('kerst/index.html',christmas());urls.append('/kerst/')
+    # Keep module imports on one version; mixing versioned and unversioned
+    # admin.js URLs would initialize the admin twice in the same browser.
+    admin_scripts=sorted((ROOT/'admin').glob('*.js'))
+    admin_version=hashlib.sha256(b''.join(p.read_bytes() for p in admin_scripts)).hexdigest()[:12]
+    for script in admin_scripts:
+        text=script.read_text()
+        text=re.sub(r"from (['\"])\./([^'\"]+\.js)\1",lambda m:f'from {m[1]}/admin/{m[2]}?v={admin_version}{m[1]}',text)
+        write('admin/'+script.name,text)
     admin=(OUT/'admin/index.html').read_text()
+    admin=re.sub(r'src="([^"]+\.js)"',lambda m:f'src="/admin/{m[1]}?v={admin_version}"',admin)
+    admin=re.sub(r'href="([^"]+\.css)"',lambda m:f'href="{asset_url("/admin/"+m[1])}"',admin)
     if 'name="robots"' not in admin:admin=admin.replace('</head>','<meta name="robots" content="noindex, nofollow"></head>')
     write('admin/index.html',admin)
     # Query-based links remain usable, but new internal links use the canonical static pages.
