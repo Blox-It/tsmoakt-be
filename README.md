@@ -98,7 +98,7 @@ De browser kan zelf geen mails versturen.
 
 ## Foto's en tijdelijk verborgen aanbod
 
-De homepage en actieve formulepagina's gebruiken echte stockfoto's, lokaal opgeslagen in `assets/photos/`. Bronnen, fotografen en licentie staan in `assets/photos/SOURCES.txt`.
+De burger-, BBQ- en paellafoto’s en de galerij Onze realisaties gebruiken eigen foto’s, aangeleverd door T'Smoakt (oktober 2026), lokaal opgeslagen in `assets/photos/`. De steakfoto blijft stockfotografie. Bronnen, fotografen en licentie staan in `assets/photos/SOURCES.txt`.
 
 De losse tapasformule staat tijdelijk op `active: false` in `data/categories.json`. Daardoor verdwijnt ze uit het aanbod en toont een rechtstreekse link dat de formule tijdelijk niet beschikbaar is. Om ze opnieuw te tonen, zet je dit veld op `true`. Mocht de Google Sheet-synchronisatie later geactiveerd worden, neem dezelfde instelling over in het tabblad Categorieën. Het tapasgerecht in de kerstbestelling staat hier los van.
 
