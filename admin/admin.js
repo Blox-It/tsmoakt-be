@@ -1,3 +1,4 @@
+import { requestProducts } from './product-catalog.js';
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
@@ -33,7 +34,7 @@ function isArchived(request) {
 }
 
 function searchable(request) {
-  const expanded = {...request,assignedNames:staffNames(request.assignedTo),formulaNames:(request.formulaSelections||[]).map(line=>allFormulas().find(item=>item.id===line.formulaId)?.title),productNames:(request.productSelections||[]).map(line=>products.find(item=>item.id===line.productId)?.name)};
+  const expanded = {...request,assignedNames:staffNames(request.assignedTo),formulaNames:(request.formulaSelections||[]).map(line=>allFormulas().find(item=>item.id===line.formulaId)?.title),productNames:requestProducts(request,products).map(line=>products.find(item=>item.id===line.productId)?.name)};
   return JSON.stringify(expanded).toLowerCase();
 }
 
@@ -79,7 +80,7 @@ function card(request) {
   const complete = completeness(request);
   const assigned = staffNames(request.assignedTo);
   const barClass = complete.score === 100 ? 'bar-complete' : complete.score >= 60 ? 'bar-progress' : 'bar-low';
-  const total = calculateTotal(request.formulaSelections,request.productSelections);
+  const total = calculateTotal(request.formulaSelections,requestProducts(request,products));
   return `<article class="card" draggable="true" data-id="${request.id}">
     <div class="card-top"><h3>${esc(request.customerName || 'Naam ontbreekt')}</h3><time>${esc(request.eventDate || 'Geen datum')}${request.eventTime ? ` · ${esc(request.eventTime)}` : ''}</time></div>
     <p>${esc(request.location || 'Locatie ontbreekt')} · ${personCount(request) || '?'} personen</p>
@@ -188,7 +189,7 @@ export function openRequest(id) {
   const complete = completeness(request);
   const labels = {phone:'telefoon',eventDate:'datum',eventTime:'uur',location:'locatie',adults:'aantal volwassenen',service:'bediening'};
   let formulaSelections = structuredClone(request.formulaSelections || []);
-  let productSelections = structuredClone(request.productSelections || []);
+  let productSelections = structuredClone(requestProducts(request,products));
   const formulas = allFormulas();
   $('#drawer-content').innerHTML = `<form id="dossier-form" class="dossier-form">
     <div class="drawer-title"><div><h2>${esc(request.customerName || 'Dossier')}</h2><div class="drawer-meta">Laatst bijgewerkt dossier</div></div><button class="primary" type="submit">Opslaan</button></div>
@@ -228,7 +229,7 @@ export function openRequest(id) {
     const form = event.currentTarget, data = Object.fromEntries(new FormData(form));
     data.adults = Number(data.adults||0);data.children = Number(data.children||0);
     data.assignedTo = [...form.elements.assignedTo.selectedOptions].map(option=>option.value);
-    data.formulaSelections = formulaSelections;data.productSelections = productSelections;
+    data.formulaSelections = formulaSelections;data.productSelections = productSelections;data.productsMapped = true;
     data.calculatedTotal = calculateTotal(formulaSelections,productSelections).total;
     data.completedAt = data.status==='uitgevoerd' ? (request.completedAt || serverTimestamp()) : null;
     data.updatedAt = serverTimestamp();

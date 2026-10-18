@@ -4,7 +4,7 @@ import { collection, addDoc, updateDoc, doc, onSnapshot, serverTimestamp } from 
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));
 const money = amount => Number.isFinite(amount) ? new Intl.NumberFormat('nl-BE',{style:'currency',currency:'EUR'}).format(amount) : 'Niet ingesteld';
-let staff = [], suppliers = [], products = [], editing = null, started = false;
+let staff = [], suppliers = [], products = [], editing = null, started = false, productSearch = '';
 
 const dialog = document.createElement('dialog');
 dialog.id = 'entity-dialog';
@@ -35,7 +35,10 @@ function renderSuppliers() {
 }
 
 function renderProducts() {
-  document.querySelector('#products-view').innerHTML = `${viewHeader('Producten','Ingrediënten, materiaal en losse verkoopproducten.','product','Product')}<div class="product-table"><div class="product-head"><span>Product</span><span>Leverancier</span><span>Aankoop</span><span>Verkoop</span><span></span></div>${products.map(product=>{const supplier=suppliers.find(item=>item.id===product.supplierId);return`<div class="product-row"><span><strong>${esc(product.name)}</strong><small>${esc(product.category||'Algemeen')} · ${esc(product.unit||'stuk')}</small></span><span>${esc(supplier?.name||'Niet ingesteld')}</span><span>${money(product.purchasePrice)}</span><span>${money(product.salePrice)}</span><button class="edit-entity" data-type="product" data-id="${product.id}">Bewerken</button></div>`}).join('')||'<p>Nog geen producten.</p>'}</div>`;
+  document.querySelector('#products-view').innerHTML = `${viewHeader('Producten','Ingrediënten, materiaal en losse verkoopproducten.','product','Product')}<label class="product-search">Zoek een product<input id="product-search" type="search" placeholder="Naam, formule of kerstgerecht…" value="${esc(productSearch)}"></label><div class="product-table"><div class="product-head"><span>Product</span><span>Leverancier</span><span>Aankoop</span><span>Verkoop</span><span></span></div>${products.map(product=>{const supplier=suppliers.find(item=>item.id===product.supplierId);return`<div class="product-row" data-search="${esc(product.name.toLowerCase())}"><span><strong>${esc(product.name)}</strong><small>${esc(product.category||'Algemeen')} · ${esc(product.unit||'stuk')}</small></span><span>${esc(supplier?.name||'Niet ingesteld')}</span><span>${money(product.purchasePrice)}</span><span>${money(product.salePrice)}</span><button class="edit-entity" data-type="product" data-id="${product.id}">Bewerken</button></div>`}).join('')||'<p>Nog geen producten.</p>'}</div>`;
+  const input=document.querySelector('#product-search');
+  const filter=()=>document.querySelectorAll('#products-view .product-row').forEach(row=>row.hidden=!row.dataset.search.includes(productSearch.toLowerCase().trim()));
+  input.oninput=()=>{productSearch=input.value;filter()};filter();
   bindEntityButtons();
 }
 

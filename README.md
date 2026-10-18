@@ -103,3 +103,13 @@ De homepage en actieve formulepagina's gebruiken echte stockfoto's, lokaal opges
 De losse tapasformule staat tijdelijk op `active: false` in `data/categories.json`. Daardoor verdwijnt ze uit het aanbod en toont een rechtstreekse link dat de formule tijdelijk niet beschikbaar is. Om ze opnieuw te tonen, zet je dit veld op `true`. Mocht de Google Sheet-synchronisatie later geactiveerd worden, neem dezelfde instelling over in het tabblad Categorieën. Het tapasgerecht in de kerstbestelling staat hier los van.
 
 Het feestdagenblok op de homepage en de menuknop verwijzen naar het bestaande `/kerst/`-formulier. De promotietekst noemt de afhaaldagen uit `data/kerst-2026.json`; werk die tekst mee bij als de afhaaldagen wijzigen. Verwijder het seizoensblok en de menulinks na de campagne.
+
+## CRM-producten en websitekoppelingen
+
+`node scripts/import-products.mjs` toont welke websiteproducten en formulekoppelingen ontbreken. Met `--apply` worden ze in één Firestore-commit toegevoegd, met controle op gelijktijdige wijzigingen. Vereist de bestaande Firebase CLI-login en geïnstalleerde `firebase-tools`. De import maakt geen dossiers aan en verstuurt geen mails.
+
+De actieve cateringformules en elk afzonderlijk kerstgerecht worden verkoopproducten. Portievarianten behouden hun eigen ID, prijs en eenheid. Aankoopprijzen en leveranciers blijven leeg. Bestaande producten, prijzen, deactivaties en aangepaste koppelingen worden behouden; opnieuw uitvoeren maakt geen duplicaten. Websiteformules hebben vaste `id`-velden: behoud die ook bij een eventuele Sheet-import of naamswijziging.
+
+Onder **Formules → Bewerken → Gekoppelde producten** kun je de koppeling aanpassen, ook voor Kerst 2026. Eén portie of formule koppelt standaard aan één verkoopproduct; dit is geen uitgewerkte ingrediëntenreceptuur. CRM-aanpassingen publiceren de websiteprijzen niet automatisch.
+
+Kerstbestellingen met nog lege productselecties worden in de CRM op basis van hun gerecht-ID aan de producten gekoppeld. Bij opslaan worden deze regels vastgelegd; bewust verwijderde regels keren niet terug. De oorspronkelijke bestelregels blijven bewaard. Controletests: `node --test tests/catalog.test.mjs`.

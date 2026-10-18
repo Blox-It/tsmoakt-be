@@ -1,3 +1,4 @@
+import { websiteCatalog } from './product-catalog.js';
 import { auth, db } from './admin.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js';
 import { doc, getDoc, setDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js';
@@ -6,12 +7,12 @@ const view = document.createElement('section');
 view.id = 'catalog-view';
 view.className = 'app-view';
 view.hidden = true;
-view.innerHTML = `<div class="catalog-heading"><div><h1>Formules en prijzen</h1><p>Beheer wat op de website wordt aangeboden.</p></div><div class="catalog-actions"><span id="catalog-status"></span><button id="save-catalog" class="primary" disabled>Wijzigingen opslaan</button></div></div><div id="catalog-grid" class="catalog-grid"><p>Formules laden…</p></div>`;
+view.innerHTML = `<div class="catalog-heading"><div><h1>Formules en prijzen</h1><p>Beheer formules en productkoppelingen. Websiteprijzen worden apart gepubliceerd.</p></div><div class="catalog-actions"><span id="catalog-status"></span><button id="save-catalog" class="primary" disabled>Wijzigingen opslaan</button></div></div><div id="catalog-grid" class="catalog-grid"><p>Formules laden…</p></div>`;
 document.querySelector('main').append(view);
 
 const dialog = document.createElement('dialog');
 dialog.id = 'formula-dialog';
-dialog.innerHTML = `<form method="dialog" id="formula-form"><header><h2>Formule bewerken</h2><button value="cancel" formnovalidate aria-label="Sluiten">×</button></header><div class="form-grid"><label class="full">Naam formule<input name="title" required></label><label class="full">Beschrijving<textarea name="description" rows="3" required></textarea></label><label>Groep<input name="group" placeholder="Bijv. Kinderen of Optie"></label><label>Eenheid<input name="unit" placeholder="p.p."></label><label>Prijs in euro<input name="priceAmount" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="check-field"><input name="priceOnRequest" type="checkbox"> Prijs op aanvraag</label><label class="check-field full"><input name="homepagePrice" type="checkbox"> Gebruik deze formule als vanafprijs op de homepage</label><div class="full formula-products-editor"><h3>Producten per persoon</h3><div id="formula-product-lines"></div><div class="add-line"><select id="formula-product-select"><option value="">Kies product</option></select><input id="formula-product-quantity" type="number" min="0.001" step="0.001" value="1"><button id="add-formula-product" type="button">Toevoegen</button></div></div></div><footer><button id="remove-formula" type="button" class="danger">Verwijderen</button><span></span><button value="cancel" formnovalidate>Annuleren</button><button class="primary" value="save">Overnemen</button></footer></form>`;
+dialog.innerHTML = `<form method="dialog" id="formula-form"><header><h2>Formule bewerken</h2><button value="cancel" formnovalidate aria-label="Sluiten">×</button></header><div class="form-grid"><label class="full">Naam formule<input name="title" required></label><label class="full">Beschrijving<textarea name="description" rows="3" required></textarea></label><label>Groep<input name="group" placeholder="Bijv. Kinderen of Optie"></label><label>Eenheid<input name="unit" placeholder="p.p."></label><label>Prijs in euro<input name="priceAmount" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="check-field"><input name="priceOnRequest" type="checkbox"> Prijs op aanvraag</label><label class="check-field full"><input name="homepagePrice" type="checkbox"> Gebruik deze formule als vanafprijs op de homepage</label><div class="full formula-products-editor"><h3>Gekoppelde producten</h3><p class="empty-note">Hoeveel product is nodig per persoon of besteleenheid (bijvoorbeeld één liter soep)?</p><div id="formula-product-lines"></div><div class="add-line"><select id="formula-product-select" aria-label="Product om te koppelen"><option value="">Kies product</option></select><input id="formula-product-quantity" aria-label="Hoeveelheid per besteleenheid" type="number" min="0.001" step="0.001" value="1"><button id="add-formula-product" type="button">Toevoegen</button></div></div></div><footer><button id="remove-formula" type="button" class="danger">Verwijderen</button><span></span><button value="cancel" formnovalidate>Annuleren</button><button class="primary" value="save">Overnemen</button></footer></form>`;
 document.body.append(dialog);
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character]));
@@ -47,14 +48,18 @@ function render() {
 }
 
 async function loadCatalog() {
-  const response = await fetch('../data/categories.json');
+  const response = await fetch('../data/categories.json',{cache:'no-cache'});
   const {items:categories} = await response.json();
-  catalog = await Promise.all(categories.filter(category=>category.active!==false).map(async category => {
-    const stored = await getDoc(doc(db,'tsmoakt_catalog',category.slug));
-    if (stored.exists()) return {category:{...category,...stored.data().category},formulas:(stored.data().formulas||[]).map(normalizeFormula)};
-    const formulaResponse = await fetch(`../data/formulas-${category.slug}.json`);
-    const data = await formulaResponse.json();
-    return {category,formulas:data.items.filter(formula=>formula.active!==false).map(normalizeFormula)};
+  const files = Object.fromEntries(await Promise.all(categories.filter(c=>c.active!==false).map(async c=>{
+    const response=await fetch(`../data/formulas-${c.slug}.json`,{cache:'no-cache'});
+    return [c.slug,(await response.json()).items];
+  })));
+  const christmas = await (await fetch('../data/kerst-2026.json',{cache:'no-cache'})).json();
+  catalog = await Promise.all(websiteCatalog(categories,files,christmas).map(async item=>{
+    const stored=await getDoc(doc(db,'tsmoakt_catalog',item.id));
+    return stored.exists()
+      ? {category:{...item.category,...stored.data().category},formulas:(stored.data().formulas||[]).map(normalizeFormula)}
+      : {category:item.category,formulas:item.formulas.map(normalizeFormula)};
   }));
   loaded = true;
   render();
@@ -81,7 +86,7 @@ function openEditor(item,index) {
 
 function renderFormulaProducts() {
   document.querySelector('#formula-product-select').innerHTML = `<option value="">Kies product</option>${products.map(product=>`<option value="${product.id}">${esc(product.name)} (${esc(product.unit||'stuk')})</option>`).join('')}`;
-  document.querySelector('#formula-product-lines').innerHTML = editingProductLines.map((line,index)=>{const product=products.find(item=>item.id===line.productId);return`<div class="order-line"><span>${esc(product?.name||'Onbekend product')}</span><strong>${line.quantityPerPerson} ${esc(product?.unit||'')} p.p.</strong><button type="button" data-index="${index}">×</button></div>`}).join('') || '<p class="empty-note">Nog geen producten gekoppeld.</p>';
+  document.querySelector('#formula-product-lines').innerHTML = editingProductLines.map((line,index)=>{const product=products.find(item=>item.id===line.productId);return`<div class="order-line"><span>${esc(product?.name||'Onbekend product')}</span><strong>${line.quantityPerPerson} ${esc(product?.unit||'')} per eenheid</strong><button type="button" data-index="${index}">×</button></div>`}).join('') || '<p class="empty-note">Nog geen producten gekoppeld.</p>';
   document.querySelectorAll('#formula-product-lines button').forEach(button=>button.onclick=()=>{editingProductLines.splice(Number(button.dataset.index),1);renderFormulaProducts()});
 }
 
