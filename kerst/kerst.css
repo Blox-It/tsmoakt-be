@@ -175,3 +175,11 @@ a:focus-visible,button:focus-visible{outline:3px solid #24533a;outline-offset:4p
 @media(min-width:720px) and (max-width:1000px){.titles{left:310px;right:20px}.t2{font-size:30px}.tag{font-size:24px}}
 @media(max-width:400px){.item{column-gap:8px}.item .n{font-size:14px}.step button{width:40px}.step input{width:32px}.t2{font-size:24px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+
+/* Only visitors using a link from the main website see return navigation. */
+.return-home{display:none}
+.from-site .return-home{display:inline-flex}
+.from-site .return-nav{display:block;background:#24533a;color:#fff;padding:8px max(16px,calc((100% - 948px)/2));position:relative;z-index:2}
+.return-nav a{color:#fff;display:inline-flex;align-items:center;gap:10px;min-height:44px;font-size:14px;font-weight:600;text-decoration:none;padding:8px 12px;border:1px solid #ffffff60;border-radius:6px}
+.return-nav a:hover{background:#ffffff15;text-decoration:underline}
+.return-nav a:focus-visible{outline:3px solid #fff;outline-offset:3px}

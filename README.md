@@ -60,7 +60,7 @@ Lettertypes worden lokaal geladen (`assets/fonts/`, licentie meegeleverd); fotoâ
 
 ## Kerstbestelling (`/kerst/`)
 
-Standalone bestelformulier op `https://tsmoakt.be/kerst/`, in de stijl van de kerstfolder. Menu, prijzen en afhaalmomenten staan in `data/kerst-2026.json`. Zet `orderDeadline` (bv. `"2026-12-20T23:59:00+01:00"`) om het formulier na die datum automatisch te sluiten.
+Standalone bestelformulier op `https://tsmoakt.be/kerst/`, in de stijl van de kerstfolder. Links vanaf de hoofdwebsite voegen `?van=website` toe; alleen dan verschijnt de terugbalk. De gewone rechtstreekse kerstlink blijft zonder die balk. De canonical blijft altijd `/kerst/`. Menu, prijzen en afhaalmomenten staan in `data/kerst-2026.json`. Zet `orderDeadline` (bv. `"2026-12-20T23:59:00+01:00"`) om het formulier na die datum automatisch te sluiten.
 
 Bestellingen komen als nieuw dossier (status *Nieuw*) in Firestore `tsmoakt_requests` en verschijnen zo in de admin. Het formulier mag daar alleen aanmaken, niet lezen. Daarvoor moet de regel `isValidPublicOrder` uit `firebase/tsmoakt-firestore.rules.txt` gepubliceerd zijn in de Firebase-console (Firestore â†’ Regels).
 

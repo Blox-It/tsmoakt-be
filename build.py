@@ -5,6 +5,7 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 from urllib.parse import quote
 import json
+import hashlib
 import re
 import shutil
 
@@ -56,6 +57,12 @@ def image(slug, alt, sizes='(max-width: 650px) 90vw, 440px', eager=False, css=''
             f'{" fetchpriority=\"high\"" if eager else ""}>')
 
 
+def asset_url(path):
+    data=(ROOT/path.lstrip('/')).read_bytes()
+    if path=='/legal.css': data+=(ROOT/'styles.css').read_bytes()
+    return path+'?v='+hashlib.sha256(data).hexdigest()[:12]
+
+
 def business():
     return {'@type': 'FoodEstablishment', '@id': BASE+'/#business', 'name': SITE['name'], 'url': BASE+'/',
             'logo': BASE+'/assets/logo.webp', 'image': BASE+'/assets/photos/burgers.jpg',
@@ -63,7 +70,7 @@ def business():
             'address': {'@type': 'PostalAddress', 'streetAddress': SITE['street'], 'postalCode': SITE['postalCode'],
                         'addressLocality': SITE['locality'], 'addressCountry': 'BE'},
             'sameAs': [SITE['facebook']], 'hasMenu': BASE+'/#aanbod',
-            'description': 'Foodtruck en catering op maat vanuit Moerbeke-Waas. Burgers, BBQ, paella en steak-friet.'}
+            'description': 'Catering op maat vanuit Moerbeke-Waas. Burgers, BBQ, paella en steak-friet.'}
 
 
 def head(title, description, path, photo='burgers', extra='', noindex=False, schema=None, css='/styles.css'):
@@ -96,14 +103,14 @@ def head(title, description, path, photo='burgers', extra='', noindex=False, sch
 <meta name="twitter:description" content="{esc(description)}">
 <meta name="twitter:image" content="{og_image}">
 <link rel="icon" href="/assets/logo.webp" type="image/webp">
-<link rel="stylesheet" href="{css}">
+<link rel="stylesheet" href="{asset_url(css)}">
 {extra}
 <script type="application/ld+json">{ld}</script>'''
 
 
 def header(current='/'):
-    links = [('/', 'Home'), ('/#over', 'Over ons'), ('/#aanbod', 'Aanbod'), ('/#contact', 'Contact'), ('/kerst/', 'Feestdagen bestellen')]
-    nav = ''.join(f'<a href="{url}"'+(' class="nav-holidays"' if url=='/kerst/' else '')+
+    links = [('/', 'Home'), ('/#over', 'Over ons'), ('/#aanbod', 'Aanbod'), ('/#contact', 'Contact'), ('/kerst/?van=website', 'Feestdagen bestellen')]
+    nav = ''.join(f'<a href="{url}"'+(' class="nav-holidays"' if url.startswith('/kerst/') else '')+
                   (' aria-current="page"' if url==current else '')+f'>{label}</a>' for url,label in links)
     return f'''<a class="skip-link" href="#inhoud">Naar de inhoud</a>
 <header class="site-header"><a class="logo" href="/" aria-label="T'Smoakt, naar de startpagina"><img src="/assets/logo.webp" alt="" width="82" height="82"></a>
@@ -113,14 +120,14 @@ def header(current='/'):
 
 def footer(categories):
     links=''.join(f'<a href="{route(c)}">{esc(c["title"])}</a>' for c in categories)
-    return f'''<footer class="site-footer"><div class="footer-brand"><img src="/assets/logo.webp" alt="T'Smoakt" width="70" height="70"><p>Foodtruck &amp; catering op maat vanuit Moerbeke-Waas.</p></div>
-<nav aria-label="Cateringformules">{links}<a href="/kerst/">Kerstbestelling</a></nav>
+    return f'''<footer class="site-footer"><div class="footer-brand"><img src="/assets/logo.webp" alt="T'Smoakt" width="70" height="70"><p>Catering op maat vanuit Moerbeke-Waas.</p></div>
+<nav aria-label="Cateringformules">{links}<a href="/kerst/?van=website">Kerstbestelling</a></nav>
 <address><a href="tel:{SITE['phoneHref']}">{SITE['phone']}</a><a href="mailto:{SITE['email']}">{SITE['email']}</a><span>{esc(SITE['street'])}<br>{SITE['postalCode']} {SITE['locality']}</span></address>
 <div class="footer-bottom"><span>© {date.today().year} T'Smoakt · {SITE['vatID']}</span><a href="/privacy.html">Privacy</a><a href="/voorwaarden.html">Algemene voorwaarden</a><a href="{SITE['facebook']}">Facebook</a></div></footer>'''
 
 
 def layout(title, description, path, content, categories, **kwargs):
-    return '<!doctype html>\n<html lang="nl-BE"><head>\n<script>document.documentElement.classList.add("js-menu")</script>\n'+head(title,description,path,**kwargs)+f'''\n<script src="/site.js" defer onerror="document.documentElement.classList.remove('js-menu')"></script></head><body>
+    return '<!doctype html>\n<html lang="nl-BE"><head>\n<script>document.documentElement.classList.add("js-menu")</script>\n'+head(title,description,path,**kwargs)+f'''\n<script src="{asset_url('/site.js')}" defer onerror="document.documentElement.classList.remove('js-menu')"></script></head><body>
 {header(path)}<main id="inhoud" tabindex="-1">{content}</main>{footer(categories)}</body></html>'''
 
 
@@ -167,11 +174,11 @@ def home(categories, formulas):
     content=re.search(r'<main>(.*?)</main>',source,re.S).group(1)
     content=content.replace('<div class="category-grid" id="category-grid"></div>',f'<div class="category-grid" id="category-grid">{category_cards(categories,formulas)}</div>')
     content=content.replace('<section class="hero">','<section class="hero">'+image('burgers','', '(max-width: 650px) 100vw, 1100px',True,'hero-image'))
-    content=content.replace('<h1>T\'Smoakt</h1>', '<p class="hero-brand">T\'Smoakt</p><h1>Foodtruck &amp; catering<br> in Moerbeke-Waas</h1>')
+    content=content.replace('<h1>T\'Smoakt</h1>', '<p class="hero-brand">T\'Smoakt</p><h1>Catering<br> in Moerbeke-Waas</h1>')
     content=content.replace('Catering op maat voor uw feesten, groot en klein.', 'Samen genieten, van de eerste hap tot de laatste gast.')
     content=content.replace('Een greep uit onze diensten','Cateringformules voor jouw feest')
     content=content.replace('src="assets/photos/bbq.jpg" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy"', 'src="/assets/photos/bbq-640.webp" srcset="/assets/photos/bbq-640.webp 640w, /assets/photos/bbq-900.webp 900w, /assets/photos/bbq-1200.webp 1200w" sizes="(max-width:650px) 90vw,440px" width="1200" height="1600" alt="Vlees dat vers wordt gegrild op de barbecue" loading="lazy" decoding="async"')
-    content=content.replace('href="kerst/"','href="/kerst/"')
+    content=content.replace('href="kerst/"','href="/kerst/?van=website"')
     content=content.replace('<label>Naam en voornaam<input name="name" required>', '<p id="contact-help" class="form-help">Velden met * zijn verplicht. Dit formulier opent je e-mailprogramma; verstuur daar je aanvraag. Liever rechtstreeks? <a href="mailto:info@tsmoakt.be">Mail ons</a> of <a href="tel:+32499628336">bel ons</a>.</p><label>Naam en voornaam *<input name="name" autocomplete="name" maxlength="100" required>')
     content=content.replace('<label>E-mail<input name="email" type="email" required>', '<label>E-mail *<input name="email" type="email" autocomplete="email" maxlength="120" required>')
     content=content.replace('<label>Uw bericht<textarea name="message" rows="4" required>', '<label>Locatie van je feest<input name="location" autocomplete="off" maxlength="200" placeholder="Gemeente of adres"></label><label>Je bericht *<textarea name="message" rows="4" maxlength="3000" required>')
@@ -179,12 +186,13 @@ def home(categories, formulas):
     content=content.replace('</button></form>','</button><p id="contact-status" role="status"></p></form>')
     process='''<section class="section planning" aria-labelledby="planning-title"><p class="kicker">ZO WERKT HET</p><h2 id="planning-title">Van een idee naar een geslaagd feest</h2><ol><li><h3>Vertel ons je plannen</h3><p>Geef je datum, locatie en aantal gasten door.</p></li><li><h3>Kies samen je formule</h3><p>Burgers, BBQ, paella of steak-friet: we bespreken wat bij je gezelschap past.</p></li><li><h3>Ontvang een voorstel op maat</h3><p>We stemmen het menu en de praktische afspraken met je af.</p></li></ol><p><strong>Vanaf 30 personen.</strong> Kleinere groepen in overleg.</p></section>'''
     content=content.replace('<section class="section contact"', process+'<section class="section contact"')
-    return layout("Foodtruck & catering Moerbeke-Waas | T'Smoakt", 'Burgers, BBQ, paella en steak-friet voor jouw feest. Catering vanuit Moerbeke-Waas vanaf 30 personen, kleinere groepen in overleg. Vraag je voorstel.', '/',content,categories)
+    return layout("Catering Moerbeke-Waas | T'Smoakt", 'Burgers, BBQ, paella en steak-friet voor jouw feest. Catering vanuit Moerbeke-Waas vanaf 30 personen, kleinere groepen in overleg. Vraag je voorstel.', '/',content,categories)
 
 
 def christmas():
     source=(ROOT/'kerst/index.html').read_text();data=read_json('data/kerst-2026.json')
-    extra='<link rel="preload" href="/kerst/fonts/montserrat.woff2" as="font" type="font/woff2" crossorigin><script type="module" src="/kerst/kerst.js"></script>'
+    extra='<script>if(new URLSearchParams(location.search).get("van")==="website")document.documentElement.classList.add("from-site")</script><link rel="preload" href="/kerst/fonts/montserrat.woff2" as="font" type="font/woff2" crossorigin><script type="module" src="/kerst/kerst.js"></script>'
+    extra=extra.replace('/kerst/kerst.js',asset_url('/kerst/kerst.js'))
     meta=head("Kerstmenu 2026 bestellen in Moerbeke-Waas | T'Smoakt", 'Bestel je kerstmenu bij T\'Smoakt: hapjes, soep, voor- en hoofdgerechten en dessert. Afhalen in Moerbeke-Waas op 24, 25 of 26 december 2026.', '/kerst/',extra=extra,css='/kerst/kerst.css')
     source=re.sub(r'<head>.*?</head>', '<head>'+meta+'</head>', source,flags=re.S).replace('lang="nl"','lang="nl-BE"')
     source=source.replace('<body>', '<body><a class="skip-link" href="#inhoud">Naar het kerstmenu</a>').replace('<main>', '<main id="inhoud" tabindex="-1">')
@@ -224,6 +232,7 @@ def build():
     for path in (ROOT/'data').glob('*.json'):
         if path.name!='sheets.json':shutil.copy2(path,OUT/'data'/path.name)
     for filename in ['styles.css','legal.css','site.js','category.js','.nojekyll']:shutil.copy2(ROOT/filename,OUT/filename)
+    write('legal.css',(ROOT/'legal.css').read_text().replace("'styles.css'","'"+asset_url('/styles.css')+"'"))
     all_categories=read_json('data/categories.json')['items']
     categories=[c for c in all_categories if c.get('active') is not False]
     formulas={c['slug']:read_json(f'data/formulas-{c["slug"]}.json')['items'] for c in categories}
