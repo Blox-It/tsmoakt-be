@@ -13,6 +13,11 @@ ROOT = Path(__file__).parent.resolve()
 OUT = ROOT / '_site'
 SITE = json.loads((ROOT / 'site.json').read_text())
 BASE = SITE['url']
+# Google Analytics 4 with a consent banner (assets/consent.js). Empty id: no banner, no script.
+GA4_ID = SITE.get('ga4Id', '').strip()
+if GA4_ID and not re.fullmatch(r'G-[A-Z0-9]{4,16}', GA4_ID):
+    raise SystemExit(f'site.json ga4Id is geen GA4-meet-ID (G-…): {GA4_ID!r}')
+LIVE_HOSTS = ','.join(sorted({BASE.split('://', 1)[1], 'www.' + BASE.split('://', 1)[1].removeprefix('www.')}))
 
 
 def read_json(path):
@@ -71,6 +76,17 @@ def business():
             'description': 'Catering op maat vanuit Moerbeke-Waas. Burgers, BBQ, paella en steak-friet.'}
 
 
+def analytics_head():
+    if not GA4_ID:
+        return ''
+    return (f'<link rel="stylesheet" href="{asset_url("/assets/consent.css")}">'
+            f'<script defer src="{asset_url("/assets/consent.js")}" data-ga="{esc(GA4_ID)}" data-hosts="{esc(LIVE_HOSTS)}" data-policy="/cookies.html"></script>')
+
+
+def cookie_settings_button():
+    return '<button type="button" class="link-button" data-cookie-settings hidden>Cookie-instellingen</button>' if GA4_ID else ''
+
+
 def head(title, description, path, photo='burgers', extra='', noindex=False, schema=None, css='/styles.css'):
     canonical = BASE + path
     graph = [business(), {'@type': 'WebSite', '@id': BASE+'/#website', 'url': BASE+'/', 'name': SITE['name'], 'inLanguage': 'nl-BE'},
@@ -102,6 +118,7 @@ def head(title, description, path, photo='burgers', extra='', noindex=False, sch
 <meta name="twitter:image" content="{og_image}">
 <link rel="icon" href="/assets/logo.webp" type="image/webp">
 <link rel="stylesheet" href="{asset_url(css)}">
+{analytics_head()}
 {extra}
 <script type="application/ld+json">{ld}</script>'''
 
@@ -121,7 +138,7 @@ def footer(categories):
     return f'''<footer class="site-footer"><div class="footer-brand"><img src="/assets/logo.webp" alt="T'Smoakt" width="70" height="70"><p>Catering op maat vanuit Moerbeke-Waas.</p></div>
 <nav aria-label="Cateringformules">{links}<a href="/kerst/?van=website">Kerstbestelling</a></nav>
 <address><a href="tel:{SITE['phoneHref']}">{SITE['phone']}</a><a href="mailto:{SITE['email']}">{SITE['email']}</a><span>{esc(SITE['street'])}<br>{SITE['postalCode']} {SITE['locality']}</span></address>
-<div class="footer-bottom"><span>© {date.today().year} T'Smoakt · {SITE['vatID']}</span><a href="/privacy.html">Privacy</a><a href="/voorwaarden.html">Algemene voorwaarden</a><a href="{SITE['facebook']}">Facebook</a></div></footer>'''
+<div class="footer-bottom"><span>© {date.today().year} T'Smoakt · {SITE['vatID']}</span><a href="/privacy.html">Privacy</a><a href="/cookies.html">Cookies</a><a href="/voorwaarden.html">Algemene voorwaarden</a><a href="{SITE['facebook']}">Facebook</a>{cookie_settings_button()}</div></footer>'''
 
 
 def layout(title, description, path, content, categories, **kwargs):
@@ -201,6 +218,7 @@ def christmas():
     source=source.replace('<body>', '<body><a class="skip-link" href="#inhoud">Naar het kerstmenu</a>').replace('<main>', '<main id="inhoud" tabindex="-1">')
     source=source.replace('href="../index.html"','href="/"').replace('<h1 class="t2">KERSTBESTELLING</h1>', '<h1 class="t2">KERSTBESTELLING 2026</h1>')
     menu=''
+    source=source.replace('</footer>', f'<div class="legal-links"><a href="/privacy.html">Privacy</a> · <a href="/cookies.html">Cookies</a>{' · '+cookie_settings_button() if GA4_ID else ''}</div></footer>', 1)
     for sec in data['sections']:
         menu+=f'<section class="sec"><h2>{esc(sec["title"])}</h2><p class="sub">{esc(sec["sub"])}</p>'
         for item in sec['items']:
@@ -243,7 +261,7 @@ def build():
     urls=['/']
     for c in categories:
         write(SITE['routes'][c['slug']]+'/index.html',service_page(c,formulas[c['slug']],categories));urls.append(route(c))
-    for path,title,description in [('privacy.html',"Privacybeleid | T'Smoakt",'Lees hoe T\'Smoakt omgaat met contactgegevens, cateringaanvragen en bestellingen.'),('voorwaarden.html',"Algemene voorwaarden | T'Smoakt",'De voorwaarden voor offertes, cateringdiensten, betaling en annulering bij T\'Smoakt in Moerbeke-Waas.')]:
+    for path,title,description in [('privacy.html',"Privacybeleid | T'Smoakt",'Lees hoe T\'Smoakt omgaat met contactgegevens, cateringaanvragen en bestellingen.'),('cookies.html',"Cookieverklaring | T'Smoakt",'Welke cookies de website van T\'Smoakt gebruikt, waarvoor en hoe lang, en hoe je je keuze voor Google Analytics wijzigt.'),('voorwaarden.html',"Algemene voorwaarden | T'Smoakt",'De voorwaarden voor offertes, cateringdiensten, betaling en annulering bij T\'Smoakt in Moerbeke-Waas.')]:
         text=(ROOT/path).read_text();content=re.search(r'<main[^>]*>(.*?)</main>',text,re.S).group(1)
         content=content.replace('href="index.html"','href="/"')
         write(path,layout(title,description,'/'+path,'<div class="legal">'+content+'</div>',categories,css='/legal.css'));urls.append('/'+path)
