@@ -1,0 +1,13 @@
+/* Cookie banner (assets/consent.js): not modal, both choices equally prominent (GBA). Own colours so it
+   looks the same on the main site and on the kerst page, which has its own stylesheet. */
+.cookie-banner{position:fixed;left:16px;right:16px;bottom:max(16px,env(safe-area-inset-bottom));z-index:60;max-width:640px;margin:0 auto;padding:18px 20px;border:1px solid #ded9d1;border-radius:10px;background:#fff;color:#24211e;font:400 .95rem/1.55 Poppins,Montserrat,Arial,sans-serif;box-shadow:0 12px 36px rgba(1,10,9,.25);text-align:left}
+.cookie-banner p{margin:0 0 12px}
+.cookie-banner .cookie-banner-title{margin-bottom:6px;font-size:1.05rem;font-weight:700}
+.cookie-banner a{color:#24211e;text-decoration:underline}
+.cookie-banner-actions{display:flex;flex-wrap:wrap;gap:10px}
+.cookie-button{flex:1 1 9rem;min-height:44px;padding:10px 20px;border:2px solid #010a09;border-radius:5px;background:#010a09;color:#fff;font:600 .95rem Poppins,Montserrat,Arial,sans-serif;cursor:pointer}
+.cookie-button:hover{background:#ed4f36;border-color:#ed4f36}
+.cookie-banner a:focus-visible,.cookie-button:focus-visible{outline:3px solid #2767b0;outline-offset:3px}
+.link-button{padding:10px 0;color:inherit;font-size:inherit;min-height:44px;border:0;background:none;font-family:inherit;font-weight:inherit;text-decoration:underline;cursor:pointer}
+.link-button:focus-visible{outline:3px solid currentColor;outline-offset:3px}
+@media print{.cookie-banner{display:none}}

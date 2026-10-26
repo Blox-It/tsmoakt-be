@@ -173,6 +173,7 @@ async function onSubmit(event) {
     done.hidden = false;
     done.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
     done.focus({ preventScroll: true });
+    document.dispatchEvent(new CustomEvent('sp:lead', { detail: { bron: 'kerstbestelling' } }));
   } catch (err) {
     console.error(err);
     showError('Versturen lukte niet. Probeer het opnieuw, of mail je bestelling naar info@tsmoakt.be.');

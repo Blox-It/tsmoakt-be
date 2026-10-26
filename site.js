@@ -62,6 +62,7 @@ if (form) {
       document.querySelector('#contact-fields').hidden = true;
       status.textContent = `Bedankt! Je aanvraag is ontvangen. Aanvraagnummer: ${result.reference}. Je ontvangt een bevestiging per e-mail. We nemen contact met je op voor een voorstel.`;
       status.focus({preventScroll:true});
+      document.dispatchEvent(new CustomEvent('sp:lead',{detail:{bron:'contactformulier'}}));
       status.scrollIntoView({behavior:'instant',block:'center'});
     } catch (problem) {
       const messages = {
